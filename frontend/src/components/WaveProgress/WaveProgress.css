@@ -1,0 +1,14 @@
+.wave-progress {
+  width: 100%;
+  height: 12px;
+}
+
+.wave-progress__track {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.wave-progress__fill {
+  transition: width 0.3s var(--ease);
+}

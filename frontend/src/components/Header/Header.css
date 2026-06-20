@@ -1,0 +1,83 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: var(--header-height);
+  padding: 0 32px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header__search {
+  flex: 1;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-ink-muted);
+  transition: border-color 0.2s var(--ease);
+}
+
+.header__search:focus-within {
+  border-color: var(--color-ink-muted);
+}
+
+.header__search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-ink);
+  outline: none;
+}
+
+.header__search input::placeholder {
+  color: var(--color-ink-muted);
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.header__theme-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  color: var(--color-ink-muted);
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.header__theme-btn:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+
+.header__avatar {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-ink);
+  color: var(--color-bg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 82% 100%, 0 100%);
+}

@@ -1,0 +1,41 @@
+.discover__hero-text {
+  margin-bottom: 28px;
+}
+
+.discover__heading {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.discover__tagline {
+  color: var(--color-ink-muted);
+  font-size: 15px;
+}
+
+.discover__section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.discover__tracks {
+  margin-bottom: 40px;
+}
+
+.discover__track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (max-width: 700px) {
+  .discover__heading {
+    font-size: 36px;
+  }
+}
