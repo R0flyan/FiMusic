@@ -104,6 +104,24 @@ Track rows in the database should store paths like:
 /media/covers/example.jpg
 ```
 
+Import new local tracks into the database:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+python scripts/import_tracks.py
+```
+
+The importer scans `backend/media/tracks/*.mp3`, skips already imported files, reads duration from mp3 metadata, and creates rows in `tracks`.
+
+Recommended file name format:
+
+```text
+Artist - Title.mp3
+```
+
+If the file does not use this format, the importer uses `Unknown Artist` and the file name as the title unless mp3 metadata contains artist/title tags.
+
 ## Frontend
 
 Install dependencies:
