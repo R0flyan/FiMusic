@@ -25,6 +25,8 @@
   width: 44px;
   height: 44px;
   flex-shrink: 0;
+  background-position: center;
+  background-size: cover;
   clip-path: polygon(0 0, 100% 0, 100% 80%, 88% 100%, 0 100%);
 }
 
@@ -129,6 +131,8 @@
 .floating-player__art {
   width: 120px;
   height: 120px;
+  background-position: center;
+  background-size: cover;
   clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%);
 }
 

@@ -52,6 +52,8 @@
 .track-row__cover {
   width: 48px;
   height: 48px;
+  background-position: center;
+  background-size: cover;
   clip-path: polygon(0 0, 100% 0, 100% 82%, 90% 100%, 0 100%);
 }
 

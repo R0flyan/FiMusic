@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Track } from '../../data/mock'
 import { WaveProgress } from '../WaveProgress/WaveProgress'
 import './FloatingPlayer.css'
@@ -7,21 +7,48 @@ interface FloatingPlayerProps {
   track: Track
   isPlaying: boolean
   onTogglePlay: () => void
+  onPlaybackEnd: () => void
 }
 
-export function FloatingPlayer({ track, isPlaying, onTogglePlay }: FloatingPlayerProps) {
-  const [progress, setProgress] = useState(38)
+export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }: FloatingPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [progress, setProgress] = useState(0)
   const [expanded, setExpanded] = useState(false)
+  const coverStyle = track.coverUrl
+    ? { backgroundImage: `url("${track.coverUrl}")` }
+    : {
+        background: `linear-gradient(135deg, hsl(${track.coverHue}, 50%, 50%), hsl(${track.coverHue + 40}, 55%, 30%))`,
+      }
+  const expandedCoverStyle = track.coverUrl
+    ? { backgroundImage: `url("${track.coverUrl}")` }
+    : {
+        background: `linear-gradient(160deg, hsl(${track.coverHue}, 50%, 45%), hsl(${track.coverHue + 40}, 55%, 22%))`,
+      }
 
   useEffect(() => {
-    if (!isPlaying) return
+    const audio = audioRef.current
 
-    const interval = setInterval(() => {
-      setProgress((p) => (p >= 100 ? 0 : p + 0.3))
-    }, 300)
+    if (!audio) return
 
-    return () => clearInterval(interval)
-  }, [isPlaying])
+    if (isPlaying) {
+      void audio.play().catch(() => {
+        onPlaybackEnd()
+      })
+    } else {
+      audio.pause()
+    }
+  }, [isPlaying, onPlaybackEnd, track.audioUrl])
+
+  const handleTimeUpdate = () => {
+    const audio = audioRef.current
+
+    if (!audio || !audio.duration) {
+      setProgress(0)
+      return
+    }
+
+    setProgress((audio.currentTime / audio.duration) * 100)
+  }
 
   return (
     <>
@@ -33,9 +60,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay }: FloatingPlaye
         <div className="floating-player__compact">
           <div
             className="floating-player__cover"
-            style={{
-              background: `linear-gradient(135deg, hsl(${track.coverHue}, 50%, 50%), hsl(${track.coverHue + 40}, 55%, 30%))`,
-            }}
+            style={coverStyle}
             aria-hidden="true"
           />
 
@@ -73,13 +98,18 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay }: FloatingPlaye
 
         <WaveProgress progress={progress} />
 
+        <audio
+          ref={audioRef}
+          src={track.audioUrl}
+          onTimeUpdate={handleTimeUpdate}
+          onEnded={onPlaybackEnd}
+        />
+
         {expanded && (
           <div className="floating-player__expanded">
             <div
               className="floating-player__art"
-              style={{
-                background: `linear-gradient(160deg, hsl(${track.coverHue}, 50%, 45%), hsl(${track.coverHue + 40}, 55%, 22%))`,
-              }}
+              style={expandedCoverStyle}
             />
             <div className="floating-player__queue">
               <h3 className="floating-player__queue-title">Сейчас играет</h3>

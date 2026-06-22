@@ -1,9 +1,11 @@
 export interface Track {
-  id: string
+  id: number
   title: string
   artist: string
-  album: string
-  duration: string
+  album: string | null
+  duration: string | null
+  audioUrl: string
+  coverUrl: string | null
   coverHue: number
 }
 
@@ -44,48 +46,48 @@ export const sidePlaylists: Playlist[] = [
   },
 ]
 
-export const recentTracks: Track[] = [
-  {
-    id: 't1',
-    title: 'Glass Horizon',
-    artist: 'Nova Pulse',
-    album: 'Currents',
-    duration: '3:42',
-    coverHue: 180,
-  },
-  {
-    id: 't2',
-    title: 'Amber Tide',
-    artist: 'Lumen',
-    album: 'Flux State',
-    duration: '4:18',
-    coverHue: 30,
-  },
-  {
-    id: 't3',
-    title: 'Static Bloom',
-    artist: 'Echo Frame',
-    album: 'Sharp Edges',
-    duration: '2:56',
-    coverHue: 280,
-  },
-  {
-    id: 't4',
-    title: 'Undertow',
-    artist: 'Maris',
-    album: 'Deep Flow',
-    duration: '5:03',
-    coverHue: 210,
-  },
-  {
-    id: 't5',
-    title: 'Cut Wave',
-    artist: 'Syllable',
-    album: 'Mono',
-    duration: '3:11',
-    coverHue: 0,
-  },
-]
+// export const recentTracks: Track[] = [
+//   {
+//     id: 't1',
+//     title: 'Glass Horizon',
+//     artist: 'Nova Pulse',
+//     album: 'Currents',
+//     duration: '3:42',
+//     coverHue: 180,
+//   },
+//   {
+//     id: 't2',
+//     title: 'Amber Tide',
+//     artist: 'Lumen',
+//     album: 'Flux State',
+//     duration: '4:18',
+//     coverHue: 30,
+//   },
+//   {
+//     id: 't3',
+//     title: 'Static Bloom',
+//     artist: 'Echo Frame',
+//     album: 'Sharp Edges',
+//     duration: '2:56',
+//     coverHue: 280,
+//   },
+//   {
+//     id: 't4',
+//     title: 'Undertow',
+//     artist: 'Maris',
+//     album: 'Deep Flow',
+//     duration: '5:03',
+//     coverHue: 210,
+//   },
+//   {
+//     id: 't5',
+//     title: 'Cut Wave',
+//     artist: 'Syllable',
+//     album: 'Mono',
+//     duration: '3:11',
+//     coverHue: 0,
+//   },
+// ]
 
 export const scrollPlaylists: Playlist[] = [
   {
@@ -125,4 +127,4 @@ export const scrollPlaylists: Playlist[] = [
   },
 ]
 
-export const nowPlaying: Track = recentTracks[0]
+// export const nowPlaying: Track = recentTracks[0]

@@ -9,6 +9,12 @@ interface TrackRowProps {
 }
 
 export function TrackRow({ track, index, isPlaying = false, onPlay }: TrackRowProps) {
+  const coverStyle = track.coverUrl
+    ? { backgroundImage: `url("${track.coverUrl}")` }
+    : {
+        background: `linear-gradient(135deg, hsl(${track.coverHue}, 50%, 50%), hsl(${track.coverHue + 40}, 55%, 30%))`,
+      }
+
   return (
     <div
       className={`track-row${isPlaying ? ' track-row--playing' : ''}`}
@@ -19,9 +25,7 @@ export function TrackRow({ track, index, isPlaying = false, onPlay }: TrackRowPr
 
       <div
         className="track-row__cover"
-        style={{
-          background: `linear-gradient(135deg, hsl(${track.coverHue}, 50%, 50%), hsl(${track.coverHue + 40}, 55%, 30%))`,
-        }}
+        style={coverStyle}
         aria-hidden="true"
       />
 
@@ -32,7 +36,7 @@ export function TrackRow({ track, index, isPlaying = false, onPlay }: TrackRowPr
         </span>
       </div>
 
-      <span className="track-row__duration">{track.duration}</span>
+      <span className="track-row__duration">{track.duration ?? '--:--'}</span>
 
       <div className="track-row__actions">
         <button type="button" className="track-row__btn" aria-label="В избранное">

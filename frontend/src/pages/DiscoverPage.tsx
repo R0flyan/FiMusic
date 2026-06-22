@@ -1,7 +1,6 @@
 import type { Track } from '../data/mock'
 import {
   featuredPlaylist,
-  recentTracks,
   scrollPlaylists,
   sidePlaylists,
 } from '../data/mock'
@@ -12,12 +11,13 @@ import { HorizontalScroll } from '../components/HorizontalScroll/HorizontalScrol
 import './DiscoverPage.css'
 
 interface DiscoverPageProps {
+  tracks: Track[]
   currentTrack: Track
   isPlaying: boolean
   onPlayTrack: (track: Track) => void
 }
 
-export function DiscoverPage({ currentTrack, isPlaying, onPlayTrack }: DiscoverPageProps) {
+export function DiscoverPage({ tracks, currentTrack, isPlaying, onPlayTrack }: DiscoverPageProps) {
   return (
     <div className="discover">
       <div className="discover__hero-text">
@@ -32,7 +32,7 @@ export function DiscoverPage({ currentTrack, isPlaying, onPlayTrack }: DiscoverP
       <section className="discover__tracks">
         <h2 className="discover__section-title">Недавно слушали</h2>
         <div className="discover__track-list" role="table">
-          {recentTracks.map((track, i) => (
+          {tracks.map((track, i) => (
             <TrackRow
               key={track.id}
               track={track}

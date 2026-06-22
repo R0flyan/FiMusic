@@ -5,6 +5,7 @@
 backend/.venv/
 backend/__pycache__/
 *.pyc
+backend/media/
 
 # Frontend
 frontend/node_modules/
