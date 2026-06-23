@@ -121,6 +121,7 @@ Artist - Title.mp3
 ```
 
 If the file does not use this format, the importer uses `Unknown Artist` and the file name as the title unless mp3 metadata contains artist/title tags.
+If the audio files are not processed correctly by the script, you will need to manually change the data in the database entry.
 
 ## Frontend
 
