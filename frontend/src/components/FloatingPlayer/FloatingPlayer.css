@@ -117,6 +117,14 @@
   animation: slideUp 0.25s var(--ease);
 }
 
+.floating-player__volume input{
+  width: 80px;
+  display: flex;
+  align-items: center;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

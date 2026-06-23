@@ -8,11 +8,14 @@ interface FloatingPlayerProps {
   isPlaying: boolean
   onTogglePlay: () => void
   onPlaybackEnd: () => void
+  onNextTrack: () => void
+  onPreviousTrack: () => void
 }
 
-export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }: FloatingPlayerProps) {
+export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, onNextTrack, onPreviousTrack }: FloatingPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [progress, setProgress] = useState(0)
+  const [volume, setVolume] = useState(0.8)
   const [expanded, setExpanded] = useState(false)
   const coverStyle = track.coverUrl
     ? { backgroundImage: `url("${track.coverUrl}")` }
@@ -39,6 +42,12 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }
     }
   }, [isPlaying, onPlaybackEnd, track.audioUrl])
 
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume
+    }
+  }, [volume])
+
   const handleTimeUpdate = () => {
     const audio = audioRef.current
 
@@ -48,6 +57,15 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }
     }
 
     setProgress((audio.currentTime / audio.duration) * 100)
+  }
+
+  const handleSeek = (nextProgress: number) => {
+    const audio = audioRef.current
+
+    if (!audio || !audio.duration) return
+
+    audio.currentTime = (nextProgress / 100) * audio.duration
+    setProgress(nextProgress)
   }
 
   return (
@@ -70,7 +88,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }
           </div>
 
           <div className="floating-player__controls">
-            <button type="button" className="floating-player__ctrl" aria-label="Предыдущий">
+            <button type="button" className="floating-player__ctrl" onClick={onPreviousTrack} aria-label="Предыдущий">
               <PrevIcon />
             </button>
             <button
@@ -81,9 +99,28 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }
             >
               {isPlaying ? <PauseIcon /> : <PlayIcon />}
             </button>
-            <button type="button" className="floating-player__ctrl" aria-label="Следующий">
+            <button type="button" className="floating-player__ctrl" onClick={onNextTrack} aria-label="Следующий">
               <NextIcon />
             </button>
+
+            <div className="floating-player__volume">
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={(event) => {
+                  const nextVolume = Number(event.target.value)
+                  setVolume(nextVolume)
+
+                  if (audioRef.current) {
+                    audioRef.current.volume = nextVolume
+                  }
+                }}
+                aria-label="Громкость"
+              />
+            </div>
           </div>
 
           <button
@@ -96,7 +133,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd }
           </button>
         </div>
 
-        <WaveProgress progress={progress} />
+        <WaveProgress progress={progress} onSeek={handleSeek} />
 
         <audio
           ref={audioRef}

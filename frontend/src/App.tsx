@@ -20,7 +20,8 @@ function App() {
   const [isDark, setIsDark] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
   const [tracks, setTracks] = useState<Track[]>([])
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null)
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+  const currentTrack = tracks[currentTrackIndex] ?? null
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
@@ -42,12 +43,15 @@ function App() {
         }))
 
         setTracks(mappedTracks)
-        setCurrentTrack(mappedTracks[0] ?? null)
+        setCurrentTrackIndex(0)
       })
   }, [])
 
   const handlePlayTrack = (track: Track) => {
-    setCurrentTrack(track)
+    const index = tracks.findIndex((item) => item.id === track.id)
+    if (index === -1) return
+
+    setCurrentTrackIndex(index)
     setIsPlaying(true)
   }
 
@@ -55,9 +59,19 @@ function App() {
     setIsPlaying((v) => !v)
   }, [])
 
-  const handlePlaybackEnd = useCallback(() => {
-    setIsPlaying(false)
-  }, [])
+  const handleNextTrack = () => {
+    if (tracks.length === 0) return
+
+    setCurrentTrackIndex((index) => (index + 1) % tracks.length)
+    setIsPlaying(true)
+  }
+
+  const handlePreviousTrack = () => {
+    if (tracks.length === 0) return
+
+    setCurrentTrackIndex((index) => (index - 1 + tracks.length) % tracks.length)
+    setIsPlaying(true)
+  }
 
   return (
     <MainLayout isDark={isDark} onThemeToggle={() => setIsDark((v) => !v)}>
@@ -73,7 +87,9 @@ function App() {
             track={currentTrack}
             isPlaying={isPlaying}
             onTogglePlay={handleTogglePlay}
-            onPlaybackEnd={handlePlaybackEnd}
+            onPlaybackEnd={handleNextTrack}
+            onNextTrack={handleNextTrack}
+            onPreviousTrack={handlePreviousTrack}
           />
         </>
       )}

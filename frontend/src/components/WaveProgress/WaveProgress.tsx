@@ -1,15 +1,46 @@
+import type { PointerEvent } from 'react'
 import './WaveProgress.css'
 
 interface WaveProgressProps {
   progress: number
+  onSeek?: (progress: number) => void
   className?: string
 }
 
-export function WaveProgress({ progress, className = '' }: WaveProgressProps) {
+export function WaveProgress({ progress, onSeek, className = '' }: WaveProgressProps) {
   const clamped = Math.min(100, Math.max(0, progress))
+  const isInteractive = Boolean(onSeek)
+
+  const seekFromPointer = (event: PointerEvent<HTMLDivElement>) => {
+    if (!onSeek) return
+
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const nextProgress = ((event.clientX - bounds.left) / bounds.width) * 100
+    onSeek(Math.min(100, Math.max(0, nextProgress)))
+  }
+
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!onSeek) return
+
+    event.currentTarget.setPointerCapture(event.pointerId)
+    seekFromPointer(event)
+  }
 
   return (
-    <div className={`wave-progress ${className}`.trim()} role="progressbar" aria-valuenow={clamped} aria-valuemin={0} aria-valuemax={100}>
+    <div
+      className={`wave-progress${isInteractive ? ' wave-progress--interactive' : ''} ${className}`.trim()}
+      role="slider"
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-valuenow={clamped}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      onPointerDown={handlePointerDown}
+      onPointerMove={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          seekFromPointer(event)
+        }
+      }}
+    >
       <svg viewBox="0 0 300 12" preserveAspectRatio="none" className="wave-progress__track">
         <defs>
           <clipPath id="wave-clip">
