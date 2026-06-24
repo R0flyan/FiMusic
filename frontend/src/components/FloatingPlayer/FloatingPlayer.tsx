@@ -15,7 +15,10 @@ interface FloatingPlayerProps {
 export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, onNextTrack, onPreviousTrack }: FloatingPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [progress, setProgress] = useState(0)
-  const [volume, setVolume] = useState(0.8)
+  const [volume, setVolume] = useState(() => {
+    const savedVolume = localStorage.getItem('volume')
+    return savedVolume ? parseFloat(savedVolume) : 0.5
+  })
   const [expanded, setExpanded] = useState(false)
   const coverStyle = track.coverUrl
     ? { backgroundImage: `url("${track.coverUrl}")` }
@@ -43,6 +46,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
   }, [isPlaying, onPlaybackEnd, track.audioUrl])
 
   useEffect(() => {
+    localStorage.setItem('volume', volume.toString())
     if (audioRef.current) {
       audioRef.current.volume = volume
     }
@@ -57,6 +61,22 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
     }
 
     setProgress((audio.currentTime / audio.duration) * 100)
+    localStorage.setItem('currentTrackId', track.id.toString())
+    localStorage.setItem('currentTrackTime', audio.currentTime.toString())
+  }
+
+  const handleLoadedMetadata = () => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const savedTrackId = localStorage.getItem('currentTrackId')
+    const savedTime = localStorage.getItem('currentTrackTime')
+
+    if (savedTrackId !== track.id.toString()) return
+
+    if (savedTime) {
+      audio.currentTime = Math.min(Number(savedTime), audio.duration)
+    }
   }
 
   const handleSeek = (nextProgress: number) => {
@@ -66,6 +86,8 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
 
     audio.currentTime = (nextProgress / 100) * audio.duration
     setProgress(nextProgress)
+    localStorage.setItem('currentTrackId', track.id.toString())
+    localStorage.setItem('currentTrackTime', audio.currentTime.toString())
   }
 
   return (
@@ -138,6 +160,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
         <audio
           ref={audioRef}
           src={track.audioUrl}
+          onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
           onEnded={onPlaybackEnd}
         />

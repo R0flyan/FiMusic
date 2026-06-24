@@ -17,7 +17,9 @@ interface ApiTrack {
 const API_URL = 'http://localhost:8080'
 
 function App() {
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem('theme') === 'dark'
+  })
   const [isPlaying, setIsPlaying] = useState(false)
   const [tracks, setTracks] = useState<Track[]>([])
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -25,6 +27,7 @@ function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+    localStorage.setItem('theme', isDark ? 'dark' : 'light')
   }, [isDark])
 
   useEffect(() => {
@@ -42,8 +45,13 @@ function App() {
           coverHue: index * 55,
         }))
 
+        const savedTrackId = localStorage.getItem('currentTrackId')
+        const savedIndex = savedTrackId
+          ? mappedTracks.findIndex((track) => track.id === Number(savedTrackId))
+          : 0
+
         setTracks(mappedTracks)
-        setCurrentTrackIndex(0)
+        setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
   }, [])
 
@@ -52,6 +60,8 @@ function App() {
     if (index === -1) return
 
     setCurrentTrackIndex(index)
+    localStorage.setItem('currentTrackId', track.id.toString())
+    localStorage.removeItem('currentTrackTime')
     setIsPlaying(true)
   }
 
@@ -62,14 +72,24 @@ function App() {
   const handleNextTrack = () => {
     if (tracks.length === 0) return
 
-    setCurrentTrackIndex((index) => (index + 1) % tracks.length)
+    setCurrentTrackIndex((index) => {
+      const nextIndex = (index + 1) % tracks.length
+      localStorage.setItem('currentTrackId', tracks[nextIndex].id.toString())
+      localStorage.removeItem('currentTrackTime')
+      return nextIndex
+    })
     setIsPlaying(true)
   }
 
   const handlePreviousTrack = () => {
     if (tracks.length === 0) return
 
-    setCurrentTrackIndex((index) => (index - 1 + tracks.length) % tracks.length)
+    setCurrentTrackIndex((index) => {
+      const previousIndex = (index - 1 + tracks.length) % tracks.length
+      localStorage.setItem('currentTrackId', tracks[previousIndex].id.toString())
+      localStorage.removeItem('currentTrackTime')
+      return previousIndex
+    })
     setIsPlaying(true)
   }
 
