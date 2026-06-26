@@ -3,8 +3,8 @@ import './IconRail.css'
 
 const navItems = [
   { id: 'home', label: 'Главная', icon: HomeIcon },
-  { id: 'library', label: 'Библиотека', icon: LibraryIcon },
   { id: 'search', label: 'Поиск', icon: SearchIcon },
+  { id: 'library', label: 'Библиотека', icon: LibraryIcon },
   { id: 'liked', label: 'Избранное', icon: HeartIcon },
 ]
 
@@ -12,14 +12,14 @@ export function IconRail() {
   return (
     <nav className="icon-rail" aria-label="Основная навигация">
       <div className="icon-rail__logo">
-        <Logo size={28} />
+        <Logo size={32} showText />
       </div>
       <ul className="icon-rail__list">
         {navItems.map(({ id, label, icon: Icon }) => (
           <li key={id}>
             <button
               type="button"
-              className="icon-rail__item"
+              className={`icon-rail__item${id === 'home' ? ' icon-rail__item--active' : ''}`}
               aria-label={label}
             >
               <Icon />
@@ -45,20 +45,20 @@ function HomeIcon() {
   )
 }
 
-function LibraryIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="4" y="4" width="6" height="16" rx="1" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="12" y="8" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  )
-}
-
 function SearchIcon() {
   return (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.5" />
       <path d="M16 16l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function LibraryIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="4" y="4" width="6" height="16" rx="1" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="12" y="8" width="6" height="12" rx="1" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   )
 }

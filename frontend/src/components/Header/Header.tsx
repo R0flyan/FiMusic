@@ -1,4 +1,4 @@
-import { Logo } from '../Logo/Logo'
+// import { Logo } from '../Logo/Logo'
 import './Header.css'
 
 interface HeaderProps {
@@ -9,7 +9,7 @@ interface HeaderProps {
 export function Header({ onThemeToggle, isDark }: HeaderProps) {
   return (
     <header className="header">
-      <Logo size={28} showText />
+      {/* <Logo size={28} showText /> */}
 
       <div className="header__search">
         <SearchIcon />

@@ -6,15 +6,19 @@
   width: var(--rail-width);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 20px 0;
+  align-items: stretch;
+  padding: 22px 12px;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
   z-index: 100;
+  border-radius: 0 24px 24px 0;
 }
 
 .icon-rail__logo {
-  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  margin-bottom: 34px;
 }
 
 .icon-rail__list {
@@ -23,19 +27,20 @@
   flex-direction: column;
   gap: 4px;
   width: 100%;
-  padding: 0 10px;
+  padding: 0;
 }
 
 .icon-rail__item {
+  gap: 8px;
   position: relative;
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   align-items: center;
-  justify-content: center;
+  justify-content: left;
   width: 100%;
   height: auto;
   min-height: 48px;
-  padding: 8px 0;
+  padding-left: 20px;
   border: none;
   background: none;
   color: var(--color-ink-muted);
@@ -51,12 +56,13 @@
 
 .icon-rail__item--active {
   color: var(--color-accent);
-  background: var(--color-accent-soft);
+  /* background: var(--color-accent-soft); */
 }
 
 .icon-rail__label {
-  font-size: 11px;
-  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 500;
+  font-family: var(--font-body);
   margin-top: 4px;
   white-space: nowrap;
   user-select: none;
@@ -68,8 +74,8 @@
   left: -10px;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 20px;
+  width: 6px;
+  height: 30px;
   background: var(--color-accent);
-  border-radius: 0 2px 2px 0;
+  border-radius: 2px 2px 2px 2px;
 }

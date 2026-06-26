@@ -4,6 +4,10 @@
   color: var(--color-ink);
 }
 
+.logo__text-accent {
+  color: var(--color-accent);
+}
+
 .logo__text {
   font-family: var(--font-display);
   font-size: 22px;

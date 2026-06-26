@@ -13,12 +13,12 @@
 
 .layout__content {
   flex: 1;
-  padding: 32px;
+  padding: 132px 32px 32px;
   padding-bottom: 120px;
 }
 
 @media (max-width: 700px) {
   .layout__content {
-    padding: 20px 16px 120px;
+    padding: 116px 16px 120px;
   }
 }

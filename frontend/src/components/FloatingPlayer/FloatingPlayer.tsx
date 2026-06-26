@@ -15,6 +15,8 @@ interface FloatingPlayerProps {
 export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, onNextTrack, onPreviousTrack }: FloatingPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [progress, setProgress] = useState(0)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(() => {
     const savedVolume = localStorage.getItem('volume')
     return savedVolume ? parseFloat(savedVolume) : 0.5
@@ -60,6 +62,8 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
       return
     }
 
+    setCurrentTime(audio.currentTime)
+    setDuration(audio.duration)
     setProgress((audio.currentTime / audio.duration) * 100)
     localStorage.setItem('currentTrackId', track.id.toString())
     localStorage.setItem('currentTrackTime', audio.currentTime.toString())
@@ -69,6 +73,8 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
     const audio = audioRef.current
     if (!audio) return
 
+    setDuration(audio.duration || 0)
+
     const savedTrackId = localStorage.getItem('currentTrackId')
     const savedTime = localStorage.getItem('currentTrackTime')
 
@@ -76,6 +82,8 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
 
     if (savedTime) {
       audio.currentTime = Math.min(Number(savedTime), audio.duration)
+      setCurrentTime(audio.currentTime)
+      setProgress((audio.currentTime / audio.duration) * 100)
     }
   }
 
@@ -85,6 +93,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
     if (!audio || !audio.duration) return
 
     audio.currentTime = (nextProgress / 100) * audio.duration
+    setCurrentTime(audio.currentTime)
     setProgress(nextProgress)
     localStorage.setItem('currentTrackId', track.id.toString())
     localStorage.setItem('currentTrackTime', audio.currentTime.toString())
@@ -105,7 +114,12 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
           />
 
           <div className="floating-player__info">
-            <span className="floating-player__title">{track.title}</span>
+            <div className="floating-player__title-row">
+              <span className="floating-player__title">{track.title}</span>
+              <button type="button" className="floating-player__like" aria-label="Добавить в избранное">
+                <HeartIcon />
+              </button>
+            </div>
             <span className="floating-player__artist">{track.artist}</span>
           </div>
 
@@ -124,8 +138,10 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
             <button type="button" className="floating-player__ctrl" onClick={onNextTrack} aria-label="Следующий">
               <NextIcon />
             </button>
+          </div>
 
-            <div className="floating-player__volume">
+          <div className="floating-player__volume">
+              <VolumeIcon />
               <input
                 type="range"
                 min="0"
@@ -142,7 +158,6 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
                 }}
                 aria-label="Громкость"
               />
-            </div>
           </div>
 
           <button
@@ -151,11 +166,15 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
             onClick={() => setExpanded((v) => !v)}
             aria-label={expanded ? 'Свернуть' : 'Развернуть'}
           >
-            <ChevronIcon up={expanded} />
+            <QueueIcon />
           </button>
         </div>
 
-        <WaveProgress progress={progress} onSeek={handleSeek} />
+        <div className="floating-player__progress-row">
+          <span className="floating-player__time">{formatTime(currentTime)}</span>
+          <WaveProgress progress={progress} onSeek={handleSeek} />
+          <span className="floating-player__time">{formatTime(duration)}</span>
+        </div>
 
         <audio
           ref={audioRef}
@@ -184,9 +203,18 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
   )
 }
 
+function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '0:00'
+
+  const totalSeconds = Math.floor(seconds)
+  const minutes = Math.floor(totalSeconds / 60)
+  const remainingSeconds = totalSeconds % 60
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+}
+
 function PlayIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M8 5v14l11-7z" />
     </svg>
   )
@@ -194,7 +222,7 @@ function PlayIcon() {
 
 function PauseIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <rect x="6" y="5" width="4" height="14" />
       <rect x="14" y="5" width="4" height="14" />
     </svg>
@@ -203,7 +231,7 @@ function PauseIcon() {
 
 function PrevIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
     </svg>
   )
@@ -211,23 +239,41 @@ function PrevIcon() {
 
 function NextIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
     </svg>
   )
 }
 
-function ChevronIcon({ up }: { up: boolean }) {
+function HeartIcon() {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      style={{ transform: up ? 'rotate(180deg)' : undefined, transition: 'transform 0.2s' }}
-    >
-      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 20s-7-4.5-9-8.5C1.5 8.5 3.5 5 7 5c2 0 3.5 1.5 5 3 1.5-1.5 3-3 5-3 3.5 0 5.5 3.5 4 6.5-2 4-9 8.5-9 8.5z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function VolumeIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M17 9.5a4 4 0 010 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function QueueIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 7h12M4 12h12M4 17h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="19" cy="7" r="1.5" fill="currentColor" />
+      <circle cx="19" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="15" cy="17" r="1.5" fill="currentColor" />
     </svg>
   )
 }

@@ -16,7 +16,11 @@ export function Logo({ size = 32, showText = false }: LogoProps) {
         className="logo__mark"
         aria-hidden={showText ? undefined : true}
       />
-      {showText && <span className="logo__text">FiMusic</span>}
+      {showText && (
+        <span className="logo__text">
+          <span className="logo__text-accent">Fi</span>Music
+        </span>
+      )}
     </div>
   )
 }
