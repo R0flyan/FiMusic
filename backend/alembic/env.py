@@ -8,6 +8,7 @@ from alembic import context
 from app.config import settings
 from app.db.base import Base
 from app.models.favorite_track import FavoriteTrack
+from app.models.playlist import Playlist, PlaylistTrack
 from app.models.track import Track
 
 # this is the Alembic Config object, which provides

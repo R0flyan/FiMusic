@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -9,13 +10,25 @@ from app.schemas.track import TrackRead
 router = APIRouter(prefix="/tracks", tags=["tracks"])
 
 
-@router.get("", response_model=list[TrackRead])
-def get_tracks(db: Session = Depends(get_db)):
-    tracks = db.query(Track).order_by(Track.id).all()
-    favorite_track_ids = {
-        track_id
-        for (track_id,) in db.query(FavoriteTrack.track_id).all()
-    }
+def _escape_like(value: str) -> str:
+    return (
+        value.replace("\\", "\\\\")
+        .replace("%", "\\%")
+        .replace("_", "\\_")
+    )
+
+
+def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
+    track_ids = [track.id for track in tracks]
+    favorite_track_ids = set()
+
+    if track_ids:
+        favorite_track_ids = {
+            track_id
+            for (track_id,) in db.query(FavoriteTrack.track_id)
+            .filter(FavoriteTrack.track_id.in_(track_ids))
+            .all()
+        }
 
     return [
         TrackRead.model_validate(track).model_copy(
@@ -23,6 +36,27 @@ def get_tracks(db: Session = Depends(get_db)):
         )
         for track in tracks
     ]
+
+
+@router.get("", response_model=list[TrackRead])
+def get_tracks(
+    search: str | None = Query(default=None, max_length=255),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Track)
+
+    if search is not None and search.strip():
+        pattern = f"%{_escape_like(search.strip())}%"
+        query = query.filter(
+            or_(
+                Track.title.ilike(pattern, escape="\\"),
+                Track.artist.ilike(pattern, escape="\\"),
+                Track.album.ilike(pattern, escape="\\"),
+            )
+        )
+
+    tracks = query.order_by(Track.id).all()
+    return _serialize_tracks(db, tracks)
 
 
 @router.post("/{track_id}/favorite", response_model=TrackRead)
