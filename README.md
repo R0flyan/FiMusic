@@ -62,7 +62,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Apply migrations:
+Apply migrations in /backend:
 
 ```powershell
 alembic upgrade head
