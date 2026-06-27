@@ -5,14 +5,22 @@ import './MainLayout.css'
 
 interface MainLayoutProps {
   children: ReactNode
+  activePage: 'home' | 'liked'
   isDark: boolean
+  onNavigate: (page: 'home' | 'liked') => void
   onThemeToggle: () => void
 }
 
-export function MainLayout({ children, isDark, onThemeToggle }: MainLayoutProps) {
+export function MainLayout({
+  children,
+  activePage,
+  isDark,
+  onNavigate,
+  onThemeToggle,
+}: MainLayoutProps) {
   return (
     <div className="layout">
-      <IconRail />
+      <IconRail activePage={activePage} onNavigate={onNavigate} />
       <div className="layout__main">
         <Header isDark={isDark} onThemeToggle={onThemeToggle} />
         <main className="layout__content">{children}</main>

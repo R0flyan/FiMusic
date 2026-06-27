@@ -74,6 +74,11 @@
   transition: color 0.15s var(--ease), background 0.15s var(--ease);
 }
 
+.floating-player__ctrl--active {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
 .floating-player__ctrl:hover {
   color: var(--color-ink);
   background: var(--color-hover);
@@ -237,12 +242,20 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  color: var(--color-accent-hover);
+  color: var(--color-ink-muted);
   border-radius: 8px;
 }
 
 .floating-player__like:hover {
   background: var(--color-hover);
+}
+
+.floating-player__like--active {
+  color: var(--color-accent);
+}
+
+.floating-player__like--active svg path {
+  fill: currentColor;
 }
 
 .floating-player__controls {

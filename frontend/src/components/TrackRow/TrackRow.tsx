@@ -6,9 +6,16 @@ interface TrackRowProps {
   index: number
   isPlaying?: boolean
   onPlay?: (track: Track) => void
+  onToggleFavorite?: (track: Track) => void
 }
 
-export function TrackRow({ track, index, isPlaying = false, onPlay }: TrackRowProps) {
+export function TrackRow({
+  track,
+  index,
+  isPlaying = false,
+  onPlay,
+  onToggleFavorite,
+}: TrackRowProps) {
   const coverStyle = track.coverUrl
     ? { backgroundImage: `url("${track.coverUrl}")` }
     : {
@@ -39,7 +46,12 @@ export function TrackRow({ track, index, isPlaying = false, onPlay }: TrackRowPr
       <span className="track-row__duration">{track.duration ?? '--:--'}</span>
 
       <div className="track-row__actions">
-        <button type="button" className="track-row__btn" aria-label="В избранное">
+        <button
+          type="button"
+          className={`track-row__btn${track.isFavorite ? ' track-row__btn--active' : ''}`}
+          aria-label={track.isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+          onClick={() => onToggleFavorite?.(track)}
+        >
           <HeartIcon />
         </button>
         <button type="button" className="track-row__btn" aria-label="Ещё">

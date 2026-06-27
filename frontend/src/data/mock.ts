@@ -7,6 +7,7 @@ export interface Track {
   audioUrl: string
   coverUrl: string | null
   coverHue: number
+  isFavorite: boolean
 }
 
 export interface Playlist {

@@ -12,12 +12,23 @@ import './DiscoverPage.css'
 
 interface DiscoverPageProps {
   tracks: Track[]
+  title?: string
+  emptyText?: string
   currentTrack: Track
   isPlaying: boolean
   onPlayTrack: (track: Track) => void
+  onToggleFavorite: (track: Track) => void
 }
 
-export function DiscoverPage({ tracks, currentTrack, isPlaying, onPlayTrack }: DiscoverPageProps) {
+export function DiscoverPage({
+  tracks,
+  title,
+  emptyText = 'Треки не найдены',
+  currentTrack,
+  isPlaying,
+  onPlayTrack,
+  onToggleFavorite,
+}: DiscoverPageProps) {
   return (
     <div className="discover">
       <div className="discover__hero-text">
@@ -31,16 +42,22 @@ export function DiscoverPage({ tracks, currentTrack, isPlaying, onPlayTrack }: D
 
       <section className="discover__tracks">
         <h2 className="discover__section-title">Недавно слушали</h2>
+        {title && <p className="discover__page-label">{title}</p>}
         <div className="discover__track-list" role="table">
-          {tracks.map((track, i) => (
-            <TrackRow
-              key={track.id}
-              track={track}
-              index={i + 1}
-              isPlaying={isPlaying && currentTrack.id === track.id}
-              onPlay={onPlayTrack}
-            />
-          ))}
+          {tracks.length > 0 ? (
+            tracks.map((track, i) => (
+              <TrackRow
+                key={track.id}
+                track={track}
+                index={i + 1}
+                isPlaying={isPlaying && currentTrack.id === track.id}
+                onPlay={onPlayTrack}
+                onToggleFavorite={onToggleFavorite}
+              />
+            ))
+          ) : (
+            <p className="discover__empty">{emptyText}</p>
+          )}
         </div>
       </section>
 

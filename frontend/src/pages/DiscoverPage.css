@@ -29,6 +29,18 @@
   margin-bottom: 40px;
 }
 
+.discover__page-label {
+  margin: -4px 0 14px;
+  color: var(--color-ink-muted);
+  font-size: 14px;
+}
+
+.discover__empty {
+  margin: 0;
+  padding: 22px 12px;
+  color: var(--color-ink-muted);
+}
+
 .discover__track-list {
   display: flex;
   flex-direction: column;

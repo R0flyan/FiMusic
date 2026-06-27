@@ -116,6 +116,14 @@
   background: var(--color-hover);
 }
 
+.track-row__btn--active {
+  color: var(--color-accent);
+}
+
+.track-row__btn--active svg path {
+  fill: currentColor;
+}
+
 .track-row__play {
   width: 32px;
   height: 32px;

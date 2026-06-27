@@ -1,14 +1,21 @@
 import { Logo } from '../Logo/Logo'
 import './IconRail.css'
 
+type AppPage = 'home' | 'liked'
+
 const navItems = [
   { id: 'home', label: 'Главная', icon: HomeIcon },
   { id: 'search', label: 'Поиск', icon: SearchIcon },
   { id: 'library', label: 'Библиотека', icon: LibraryIcon },
   { id: 'liked', label: 'Избранное', icon: HeartIcon },
-]
+] as const
 
-export function IconRail() {
+interface IconRailProps {
+  activePage: AppPage
+  onNavigate: (page: AppPage) => void
+}
+
+export function IconRail({ activePage, onNavigate }: IconRailProps) {
   return (
     <nav className="icon-rail" aria-label="Основная навигация">
       <div className="icon-rail__logo">
@@ -19,8 +26,13 @@ export function IconRail() {
           <li key={id}>
             <button
               type="button"
-              className={`icon-rail__item${id === 'home' ? ' icon-rail__item--active' : ''}`}
+              className={`icon-rail__item${id === activePage ? ' icon-rail__item--active' : ''}`}
               aria-label={label}
+              onClick={() => {
+                if (id === 'home' || id === 'liked') {
+                  onNavigate(id)
+                }
+              }}
             >
               <Icon />
               <span className="icon-rail__label">{label}</span>

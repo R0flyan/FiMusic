@@ -6,13 +6,26 @@ import './FloatingPlayer.css'
 interface FloatingPlayerProps {
   track: Track
   isPlaying: boolean
+  isShuffle: boolean
   onTogglePlay: () => void
   onPlaybackEnd: () => void
   onNextTrack: () => void
   onPreviousTrack: () => void
+  onToggleShuffle: () => void
+  onToggleFavorite: (track: Track) => void
 }
 
-export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, onNextTrack, onPreviousTrack }: FloatingPlayerProps) {
+export function FloatingPlayer({
+  track,
+  isPlaying,
+  isShuffle,
+  onTogglePlay,
+  onPlaybackEnd,
+  onNextTrack,
+  onPreviousTrack,
+  onToggleShuffle,
+  onToggleFavorite,
+}: FloatingPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [progress, setProgress] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
@@ -21,6 +34,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
     const savedVolume = localStorage.getItem('volume')
     return savedVolume ? parseFloat(savedVolume) : 0.5
   })
+  const [isRepeat, setIsRepeat] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const coverStyle = track.coverUrl
     ? { backgroundImage: `url("${track.coverUrl}")` }
@@ -87,6 +101,18 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
     }
   }
 
+  const handleEnded = () => {
+    const audio = audioRef.current
+
+    if (isRepeat && audio) {
+      audio.currentTime = 0
+      void audio.play()
+      return
+    }
+
+    onPlaybackEnd()
+  }
+
   const handleSeek = (nextProgress: number) => {
     const audio = audioRef.current
 
@@ -116,7 +142,12 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
           <div className="floating-player__info">
             <div className="floating-player__title-row">
               <span className="floating-player__title">{track.title}</span>
-              <button type="button" className="floating-player__like" aria-label="Добавить в избранное">
+              <button
+                type="button"
+                className={`floating-player__like${track.isFavorite ? ' floating-player__like--active' : ''}`}
+                aria-label={track.isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+                onClick={() => onToggleFavorite(track)}
+              >
                 <HeartIcon />
               </button>
             </div>
@@ -124,6 +155,14 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
           </div>
 
           <div className="floating-player__controls">
+            <button
+              type="button"
+              className={`floating-player__ctrl${isShuffle ? ' floating-player__ctrl--active' : ''}`}
+              onClick={onToggleShuffle}
+              aria-label="Случайный трек"
+            >
+              <ShuffleIcon />
+            </button>
             <button type="button" className="floating-player__ctrl" onClick={onPreviousTrack} aria-label="Предыдущий">
               <PrevIcon />
             </button>
@@ -137,6 +176,14 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
             </button>
             <button type="button" className="floating-player__ctrl" onClick={onNextTrack} aria-label="Следующий">
               <NextIcon />
+            </button>
+            <button
+              type="button"
+              className={`floating-player__ctrl${isRepeat ? ' floating-player__ctrl--active' : ''}`}
+              onClick={() => setIsRepeat((value) => !value)}
+              aria-label="Повтор трека"
+            >
+              <RepeatIcon />
             </button>
           </div>
 
@@ -181,7 +228,7 @@ export function FloatingPlayer({ track, isPlaying, onTogglePlay, onPlaybackEnd, 
           src={track.audioUrl}
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
-          onEnded={onPlaybackEnd}
+          onEnded={handleEnded}
         />
 
         {expanded && (
@@ -241,6 +288,29 @@ function NextIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+    </svg>
+  )
+}
+
+function RepeatIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M17 2l4 4-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 11V9a3 3 0 013-3h15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M7 22l-4-4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M21 13v2a3 3 0 01-3 3H3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function ShuffleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 7h3.5c2.5 0 3.5 10 6 10H20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M17 14l3 3-3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 17h3.5c1 0 1.7-.8 2.3-2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M14 7h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M17 4l3 3-3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }

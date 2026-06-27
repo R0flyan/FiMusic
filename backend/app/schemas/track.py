@@ -10,6 +10,7 @@ class TrackRead(BaseModel):
     duration: str | None
     file_path: str
     cover_path: str | None
+    is_favorite: bool = False
     created_at: datetime
 
     model_config = {
