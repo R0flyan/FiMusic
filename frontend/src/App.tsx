@@ -2,7 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { MainLayout } from './layouts/MainLayout'
 import { DiscoverPage } from './pages/DiscoverPage'
 import { FavoriteTracksPage } from './pages/FavoriteTracksPage'
+import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
 import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
+import { useAuth } from './context/AuthContext'
 import type { Track } from './data/mock'
 
 interface ApiTrack {
@@ -17,9 +20,10 @@ interface ApiTrack {
 }
 
 const API_URL = 'http://localhost:8080'
-type AppPage = 'home' | 'liked'
+type AppPage = 'home' | 'liked' | 'login' | 'register'
 
 function App() {
+  const { user, isLoading } = useAuth()
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark'
   })
@@ -37,6 +41,19 @@ function App() {
   }, [isDark])
 
   useEffect(() => {
+    // Показываем страницу входа только если пользователь не авторизован
+    if (!isLoading && !user && (activePage === 'home' || activePage === 'liked')) {
+      setActivePage('login')
+    }
+    // Если пользователь авторизован и на странице auth, переходим на home
+    if (!isLoading && user && (activePage === 'login' || activePage === 'register')) {
+      setActivePage('home')
+    }
+  }, [isLoading, user, activePage])
+
+  useEffect(() => {
+    if (!user) return // Не загружаем треки, если пользователь не авторизован
+
     fetch(`${API_URL}/tracks`)
       .then((res) => res.json())
       .then((data: ApiTrack[]) => {
@@ -60,7 +77,7 @@ function App() {
         setTracks(mappedTracks)
         setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
-  }, [])
+  }, [user])
 
   const handlePlayTrack = (track: Track) => {
     const index = tracks.findIndex((item) => item.id === track.id)
@@ -156,6 +173,19 @@ function App() {
         ),
       )
     }
+  }
+
+  if (isLoading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Загрузка...</div>
+  }
+
+  // Показываем страницы авторизации
+  if (activePage === 'login') {
+    return <LoginPage onSwitchToRegister={() => setActivePage('register')} />
+  }
+
+  if (activePage === 'register') {
+    return <RegisterPage onSwitchToLogin={() => setActivePage('login')} />
   }
 
   return (

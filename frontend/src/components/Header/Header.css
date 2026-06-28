@@ -1,83 +1,155 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 24px;
-  height: var(--header-height);
-  padding: 0 32px;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg);
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border, #eee);
+  background: var(--color-surface, #fff);
 }
 
 .header__search {
-  flex: 1;
-  max-width: 480px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  height: 40px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-ink-muted);
-  transition: border-color 0.2s var(--ease);
-}
-
-.header__search:focus-within {
-  border-color: var(--color-ink-muted);
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 500px;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-background, #f5f5f5);
+  border-radius: 8px;
+  color: var(--color-text-secondary, #888);
 }
 
 .header__search input {
   flex: 1;
   border: none;
   background: transparent;
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-ink);
   outline: none;
-}
-
-.header__search input::placeholder {
-  color: var(--color-ink-muted);
+  font-size: 0.9rem;
+  color: var(--color-text, #000);
 }
 
 .header__actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-left: auto;
+  gap: 0.5rem;
+  position: relative;
 }
 
-.header__theme-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  font-size: 16px;
-  color: var(--color-ink-muted);
-  transition: background 0.2s var(--ease), color 0.2s var(--ease);
-}
-
-.header__theme-btn:hover {
-  background: var(--color-hover);
-  color: var(--color-ink);
-}
-
+.header__theme-btn,
 .header__avatar {
-  width: 36px;
-  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-ink);
-  color: var(--color-bg);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 14px;
-  clip-path: polygon(0 0, 100% 0, 100% 75%, 82% 100%, 0 100%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-background, #f5f5f5);
+  color: var(--color-text, #000);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header__theme-btn:hover,
+.header__avatar:hover {
+  background: var(--color-hover, #e5e5e5);
+}
+
+.header__avatar span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Выпадающее меню */
+.header__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 220px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header__menu-user {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header__menu-username {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.header__menu-email {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.2rem;
+  opacity: 0.7;
+}
+
+.header__menu-divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.header__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header__menu-item:hover {
+  background: var(--color-hover);
+}
+
+/* Кнопка "Выйти" — видна в обеих темах */
+.header__menu-item--logout {
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .header__menu-item--logout {
+  color: #ff8787;
+}
+
+.header__menu-item--logout:hover {
+  background: rgba(255, 107, 107, 0.15);
+}
+
+/* Аватар — виден в обеих темах */
+.header__avatar {
+  background: var(--color-primary, #646cff);
+  color: #fff;
+  border: 2px solid var(--color-border);
+}
+
+.header__avatar:hover {
+  opacity: 0.85;
+  background: var(--color-primary, #646cff);
 }
