@@ -1,0 +1,80 @@
+import { useMemo, useState } from 'react'
+import { TrackRow } from '../components/TrackRow/TrackRow'
+import type { Track } from '../data/mock'
+import './SearchPage.css'
+
+interface SearchPageProps {
+  tracks: Track[]
+  currentTrack: Track
+  isPlaying: boolean
+  onPlayTrack: (track: Track) => void
+  onToggleFavorite: (track: Track) => void
+}
+
+export function SearchPage({
+  tracks,
+  currentTrack,
+  isPlaying,
+  onPlayTrack,
+  onToggleFavorite,
+}: SearchPageProps) {
+  const [query, setQuery] = useState('')
+  const normalizedQuery = query.trim().toLowerCase()
+  const filteredTracks = useMemo(() => {
+    if (!normalizedQuery) return tracks
+
+    return tracks.filter((track) => {
+      const values = [track.title, track.artist, track.album ?? '']
+      return values.some((value) => value.toLowerCase().includes(normalizedQuery))
+    })
+  }, [normalizedQuery, tracks])
+
+  return (
+    <div className="search-page">
+      <div className="search-page__header">
+        <h1 className="search-page__heading">Поиск</h1>
+        <div className="search-page__field">
+          <SearchIcon />
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Треки, исполнители, альбомы"
+            aria-label="Поиск"
+          />
+        </div>
+      </div>
+
+      <section className="search-page__section">
+        <h2 className="search-page__section-title">
+          {normalizedQuery ? 'Результаты' : 'Все треки'}
+        </h2>
+        <div className="search-page__track-list" role="table">
+          {filteredTracks.length > 0 ? (
+            filteredTracks.map((track, index) => (
+              <TrackRow
+                key={track.id}
+                track={track}
+                index={index + 1}
+                isPlaying={isPlaying && currentTrack.id === track.id}
+                onPlay={onPlayTrack}
+                onToggleFavorite={onToggleFavorite}
+              />
+            ))
+          ) : (
+            <p className="search-page__empty">Ничего не найдено</p>
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function SearchIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M16 16l4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  )
+}

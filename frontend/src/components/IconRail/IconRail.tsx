@@ -1,12 +1,12 @@
 import { Logo } from '../Logo/Logo'
 import './IconRail.css'
 
-type AppPage = 'home' | 'liked'
+type AppPage = 'home' | 'search' | 'playlists' | 'liked'
 
 const navItems = [
   { id: 'home', label: 'Главная', icon: HomeIcon },
   { id: 'search', label: 'Поиск', icon: SearchIcon },
-  { id: 'library', label: 'Библиотека', icon: LibraryIcon },
+  { id: 'playlists', label: 'Плейлисты', icon: LibraryIcon },
   { id: 'liked', label: 'Избранное', icon: HeartIcon },
 ] as const
 
@@ -28,11 +28,7 @@ export function IconRail({ activePage, onNavigate }: IconRailProps) {
               type="button"
               className={`icon-rail__item${id === activePage ? ' icon-rail__item--active' : ''}`}
               aria-label={label}
-              onClick={() => {
-                if (id === 'home' || id === 'liked') {
-                  onNavigate(id)
-                }
-              }}
+              onClick={() => onNavigate(id)}
             >
               <Icon />
               <span className="icon-rail__label">{label}</span>
