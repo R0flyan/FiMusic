@@ -1,4 +1,4 @@
-.layout {
+﻿.layout {
   display: flex;
   min-height: 100%;
 }
@@ -15,10 +15,25 @@
   flex: 1;
   padding: 132px 32px 32px;
   padding-bottom: 120px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .layout__main {
+    margin-left: 0;
+  }
+
+  .layout__content {
+    padding: 72px 16px 100px;
+    max-width: 100vw;
+    margin: 0 auto;
+  }
 }
 
 @media (max-width: 700px) {
   .layout__content {
-    padding: 116px 16px 120px;
+    padding: 72px 16px 100px;
+    max-width: 100vw;
   }
 }

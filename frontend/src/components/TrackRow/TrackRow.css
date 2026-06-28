@@ -155,3 +155,37 @@
     gap: 10px;
   }
 }
+
+@media (max-width: 600px) {
+  .track-row {
+    grid-template-columns: 24px 40px 1fr 36px;
+    gap: 8px;
+    padding: 6px 8px;
+  }
+
+  .track-row__index {
+    font-size: 11px;
+  }
+
+  .track-row__cover {
+    width: 40px;
+    height: 40px;
+  }
+
+  .track-row__title {
+    font-size: 14px;
+  }
+
+  .track-row__meta {
+    font-size: 12px;
+  }
+
+  .track-row__duration {
+    font-size: 11px;
+  }
+
+  .track-row__play {
+    width: 28px;
+    height: 28px;
+  }
+}

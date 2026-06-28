@@ -10,7 +10,6 @@ from app.db.base import Base
 from app.models.favorite_track import FavoriteTrack
 from app.models.playlist import Playlist, PlaylistTrack
 from app.models.track import Track
-from app.models.user import User
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

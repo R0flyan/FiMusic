@@ -79,3 +79,130 @@
   background: var(--color-accent);
   border-radius: 2px 2px 2px 2px;
 }
+
+/* Мобильная навигация */
+.icon-rail__mobile {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  z-index: 300;
+  padding: 0 16px;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-sizing: border-box;
+}
+
+.icon-rail__mobile-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 400px;
+}
+
+@media (max-width: 900px) {
+  .icon-rail__mobile {
+    display: flex;
+  }
+
+  .icon-rail {
+    display: none;
+  }
+
+  .layout__main {
+    margin-left: 0;
+  }
+
+  .layout__content {
+    padding-top: 72px;
+    padding-bottom: 140px;
+  }
+}
+
+.icon-rail__mobile-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .icon-rail__mobile {
+    display: flex;
+  }
+}
+
+.icon-rail__mobile-list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  gap: 16px;
+}
+
+.icon-rail__mobile-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 60px;
+  height: 100%;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  color: var(--color-ink-muted);
+  font-size: 10px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color 0.15s;
+  border-radius: 12px;
+}
+
+.icon-rail__mobile-item:active {
+  background: var(--color-hover);
+}
+
+.icon-rail__mobile-item--active {
+  color: var(--color-accent);
+}
+
+.icon-rail__mobile-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (max-width: 900px) {
+  .icon-rail {
+    display: none;
+  }
+
+  .icon-rail__mobile {
+    display: flex;
+  }
+
+  .layout__main {
+    margin-left: 0;
+  }
+
+  .layout__content {
+    padding-top: 72px;
+    padding-bottom: 140px;
+  }
+}

@@ -44,6 +44,25 @@
   cursor: pointer;
 }
 
+@media (max-width: 600px) {
+  .h-scroll {
+    margin-bottom: 24px;
+  }
+
+  .h-scroll__card {
+    flex: 0 0 140px;
+  }
+
+  .h-scroll__cover {
+    width: 140px;
+    height: 140px;
+  }
+
+  .h-scroll__title {
+    font-size: 18px;
+  }
+}
+
 .h-scroll__cover {
   width: 160px;
   height: 160px;

@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.auth import router as auth_router
 from app.api.playlists import router as playlists_router
 from app.api.tracks import router as tracks_router
+from app.api.auth import router as auth_router
 
 app = FastAPI(title="FiMusic API")
 

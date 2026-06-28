@@ -1,12 +1,12 @@
 import { Logo } from '../Logo/Logo'
 import './IconRail.css'
 
-type AppPage = 'home' | 'search' | 'playlists' | 'liked'
+type AppPage = 'home' | 'liked'
 
 const navItems = [
   { id: 'home', label: 'Главная', icon: HomeIcon },
   { id: 'search', label: 'Поиск', icon: SearchIcon },
-  { id: 'playlists', label: 'Плейлисты', icon: LibraryIcon },
+  { id: 'library', label: 'Библиотека', icon: LibraryIcon },
   { id: 'liked', label: 'Избранное', icon: HeartIcon },
 ] as const
 
@@ -17,26 +17,55 @@ interface IconRailProps {
 
 export function IconRail({ activePage, onNavigate }: IconRailProps) {
   return (
-    <nav className="icon-rail" aria-label="Основная навигация">
-      <div className="icon-rail__logo">
-        <Logo size={32} showText />
-      </div>
-      <ul className="icon-rail__list">
-        {navItems.map(({ id, label, icon: Icon }) => (
-          <li key={id}>
-            <button
-              type="button"
-              className={`icon-rail__item${id === activePage ? ' icon-rail__item--active' : ''}`}
-              aria-label={label}
-              onClick={() => onNavigate(id)}
-            >
-              <Icon />
-              <span className="icon-rail__label">{label}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <>
+      <nav className="icon-rail" aria-label="Основная навигация">
+        <div className="icon-rail__logo">
+          <Logo size={32} showText />
+        </div>
+        <ul className="icon-rail__list">
+          {navItems.map(({ id, label, icon: Icon }) => (
+            <li key={id}>
+              <button
+                type="button"
+                className={`icon-rail__item${id === activePage ? ' icon-rail__item--active' : ''}`}
+                aria-label={label}
+                onClick={() => {
+                  if (id === 'home' || id === 'liked') {
+                    onNavigate(id)
+                  }
+                }}
+              >
+                <Icon />
+                <span className="icon-rail__label">{label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Мобильная навигация */}
+      <nav className="icon-rail__mobile" aria-label="Мобильная навигация">
+        <ul className="icon-rail__mobile-list">
+          {navItems.map(({ id, label, icon: Icon }) => (
+            <li key={id}>
+              <button
+                type="button"
+                className={`icon-rail__mobile-item${id === activePage ? ' icon-rail__mobile-item--active' : ''}`}
+                aria-label={label}
+                onClick={() => {
+                  if (id === 'home' || id === 'liked') {
+                    onNavigate(id)
+                  }
+                }}
+              >
+                <Icon />
+                <span>{label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </>
   )
 }
 

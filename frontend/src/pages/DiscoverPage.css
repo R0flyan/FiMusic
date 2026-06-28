@@ -52,3 +52,26 @@
     font-size: 36px;
   }
 }
+
+@media (max-width: 600px) {
+  .discover__hero-text {
+    padding-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .discover__heading {
+    font-size: 28px;
+  }
+
+  .discover__tagline {
+    font-size: 14px;
+  }
+
+  .discover__section-title {
+    font-size: 18px;
+  }
+
+  .discover__tracks {
+    margin-bottom: 24px;
+  }
+}

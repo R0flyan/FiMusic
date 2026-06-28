@@ -38,13 +38,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token])
 
+  // Снимаем загрузку после первого рендера если что-то пошло не так
+  useEffect(() => {
+    if (isLoading) {
+      const timer = setTimeout(() => setIsLoading(false), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoading])
+
   const login = async (username: string, password: string) => {
     const response = await apiLogin(username, password)
     setToken(response.access_token)
     localStorage.setItem('access_token', response.access_token)
     
-    const user = await getMe(response.access_token)
-    setUser(user)
+    try {
+      const user = await getMe(response.access_token)
+      setUser(user)
+    } catch {
+      setUser({ id: 0, email: '', username, is_active: true })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const register = async (email: string, username: string, password: string) => {

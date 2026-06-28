@@ -41,3 +41,25 @@
     font-size: 36px;
   }
 }
+
+@media (max-width: 600px) {
+  .favorite-page {
+    padding-top: 20px;
+  }
+
+  .favorite-page__heading {
+    font-size: 28px;
+  }
+
+  .favorite-page__tagline {
+    font-size: 14px;
+  }
+
+  .favorite-page__header {
+    margin-bottom: 20px;
+  }
+
+  .favorite-page__tracks {
+    margin-bottom: 24px;
+  }
+}

@@ -5,9 +5,9 @@ import './MainLayout.css'
 
 interface MainLayoutProps {
   children: ReactNode
-  activePage: 'home' | 'search' | 'playlists' | 'liked'
+  activePage: 'home' | 'liked'
   isDark: boolean
-  onNavigate: (page: 'home' | 'search' | 'playlists' | 'liked') => void
+  onNavigate: (page: 'home' | 'liked') => void
   onThemeToggle: () => void
 }
 

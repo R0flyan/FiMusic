@@ -2,13 +2,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { MainLayout } from './layouts/MainLayout'
 import { DiscoverPage } from './pages/DiscoverPage'
 import { FavoriteTracksPage } from './pages/FavoriteTracksPage'
-import { PlaylistsPage } from './pages/PlaylistsPage'
-import { SearchPage } from './pages/SearchPage'
-import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
 import { useAuth } from './context/AuthContext'
 import type { Track } from './data/mock'
+
 
 interface ApiTrack {
   id: number
@@ -22,50 +21,7 @@ interface ApiTrack {
 }
 
 const API_URL = 'http://localhost:8080'
-type MainPage = 'home' | 'search' | 'playlists' | 'liked'
-type AppPage = MainPage | 'login' | 'register'
-
-export interface Playlist {
-  id: number
-  title: string
-  description: string | null
-  coverPath: string | null
-  coverUrl: string | null
-  trackCount: number
-}
-
-interface ApiPlaylist {
-  id: number
-  title: string
-  description: string | null
-  cover_path: string | null
-  track_count: number
-}
-
-interface ApiPlaylistDetail extends ApiPlaylist {
-  tracks: ApiTrack[]
-}
-
-const mapApiTrack = (track: ApiTrack, index: number): Track => ({
-  id: track.id,
-  title: track.title,
-  artist: track.artist,
-  album: track.album,
-  duration: track.duration,
-  audioUrl: `${API_URL}${track.file_path}`,
-  coverUrl: track.cover_path ? `${API_URL}${track.cover_path}` : null,
-  coverHue: index * 55,
-  isFavorite: track.is_favorite,
-})
-
-const mapApiPlaylist = (playlist: ApiPlaylist): Playlist => ({
-  id: playlist.id,
-  title: playlist.title,
-  description: playlist.description,
-  coverPath: playlist.cover_path,
-  coverUrl: playlist.cover_path ? `${API_URL}${playlist.cover_path}` : null,
-  trackCount: playlist.track_count,
-})
+type AppPage = 'home' | 'liked' | 'login' | 'register'
 
 function App() {
   const { user, isLoading } = useAuth()
@@ -75,39 +31,78 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isShuffle, setIsShuffle] = useState(false)
   const [tracks, setTracks] = useState<Track[]>([])
-  const [playlists, setPlaylists] = useState<Playlist[]>([])
-  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
-  const [playlistTracks, setPlaylistTracks] = useState<Track[]>([])
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const [activePage, setActivePage] = useState<AppPage>('home')
   const currentTrack = tracks[currentTrackIndex] ?? null
   const favoriteTracks = tracks.filter((track) => track.isFavorite)
-  const visiblePage: AppPage =
-    !user && activePage !== 'login' && activePage !== 'register'
-      ? 'login'
-      : user && (activePage === 'login' || activePage === 'register')
-        ? 'home'
-        : activePage
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
     localStorage.setItem('theme', isDark ? 'dark' : 'light')
   }, [isDark])
 
+  // Центрирование контента после полной загрузки
+  useEffect(() => {
+    if (window.innerWidth <= 900) {
+      const timer = setTimeout(() => {
+        const content = document.querySelector('.layout__content')
+        if (content) {
+          const scrollWidth = content.scrollWidth
+          const clientWidth = content.clientWidth
+          if (scrollWidth > clientWidth) {
+            // Прокрутка вправо до правого края
+            content.scrollLeft = scrollWidth - clientWidth
+          }
+        }
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [user, activePage, isPlaying, tracks.length])
+
+  // Центрирование при загрузке страницы
+  useEffect(() => {
+    const handleLoad = () => {
+      if (window.innerWidth <= 900) {
+        setTimeout(() => {
+          const content = document.querySelector('.layout__content')
+          if (content) {
+            const scrollWidth = content.scrollWidth
+            const clientWidth = content.clientWidth
+            if (scrollWidth > clientWidth) {
+              content.scrollLeft = (scrollWidth - clientWidth) / 2
+            }
+          }
+        }, 300)
+      }
+    }
+    
+    window.addEventListener('load', handleLoad)
+    return () => window.removeEventListener('load', handleLoad)
+  }, [])
+
   useEffect(() => {
     if (!user) {
       setTracks([])
-      setPlaylists([])
-      setSelectedPlaylist(null)
-      setPlaylistTracks([])
-      setIsPlaying(false)
       return
     }
 
     fetch(`${API_URL}/tracks`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch tracks')
+        return res.json()
+      })
       .then((data: ApiTrack[]) => {
-        const mappedTracks = data.map(mapApiTrack)
+        const mappedTracks: Track[] = data.map((track, index) => ({
+          id: track.id,
+          title: track.title,
+          artist: track.artist,
+          album: track.album,
+          duration: track.duration,
+          audioUrl: `${API_URL}${track.file_path}`,
+          coverUrl: track.cover_path ? `${API_URL}${track.cover_path}` : null,
+          coverHue: index * 55,
+          isFavorite: track.is_favorite,
+        }))
 
         const savedTrackId = localStorage.getItem('currentTrackId')
         const savedIndex = savedTrackId
@@ -117,89 +112,11 @@ function App() {
         setTracks(mappedTracks)
         setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
-  }, [user])
-
-  const loadPlaylists = useCallback(() => {
-    if (!user) return
-
-    fetch(`${API_URL}/playlists`)
-      .then((res) => res.json())
-      .then((data: ApiPlaylist[]) => {
-        setPlaylists(data.map(mapApiPlaylist))
+      .catch((err) => {
+        console.error('Error loading tracks:', err)
+        setTracks([])
       })
   }, [user])
-
-  useEffect(() => {
-    loadPlaylists()
-  }, [loadPlaylists])
-
-  const handleOpenPlaylist = async (playlist: Playlist) => {
-    const response = await fetch(`${API_URL}/playlists/${playlist.id}`)
-    if (!response.ok) return
-
-    const data: ApiPlaylistDetail = await response.json()
-    setSelectedPlaylist(mapApiPlaylist(data))
-    setPlaylistTracks(data.tracks.map(mapApiTrack))
-  }
-
-  const handleClosePlaylist = () => {
-    setSelectedPlaylist(null)
-    setPlaylistTracks([])
-  }
-
-  const handleCreatePlaylist = async (title: string) => {
-    const response = await fetch(`${API_URL}/playlists`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title,
-      }),
-    })
-
-    if (!response.ok) return
-
-    const playlist: ApiPlaylist = await response.json()
-    setPlaylists((currentPlaylists) => [mapApiPlaylist(playlist), ...currentPlaylists])
-  }
-
-  const handleAddTrackToPlaylist = async (playlist: Playlist, track: Track) => {
-    const response = await fetch(`${API_URL}/playlists/${playlist.id}/tracks/${track.id}`, {
-      method: 'POST',
-    })
-
-    if (!response.ok) return
-
-    const data: ApiPlaylistDetail = await response.json()
-    const updatedPlaylist = mapApiPlaylist(data)
-
-    setSelectedPlaylist(updatedPlaylist)
-    setPlaylistTracks(data.tracks.map(mapApiTrack))
-    setPlaylists((currentPlaylists) =>
-      currentPlaylists.map((item) => (item.id === updatedPlaylist.id ? updatedPlaylist : item)),
-    )
-  }
-
-  const handleRemoveTrackFromPlaylist = async (playlist: Playlist, track: Track) => {
-    const response = await fetch(`${API_URL}/playlists/${playlist.id}/tracks/${track.id}`, {
-      method: 'DELETE',
-    })
-
-    if (!response.ok) return
-
-    const nextTracks = playlistTracks.filter((item) => item.id !== track.id)
-    const updatedPlaylist = {
-      ...playlist,
-      trackCount: Math.max(playlist.trackCount - 1, 0),
-    }
-
-    setSelectedPlaylist(updatedPlaylist)
-    setPlaylistTracks(nextTracks)
-    setPlaylists((currentPlaylists) =>
-      currentPlaylists.map((item) => (item.id === updatedPlaylist.id ? updatedPlaylist : item)),
-    )
-  }
 
   const handlePlayTrack = (track: Track) => {
     const index = tracks.findIndex((item) => item.id === track.id)
@@ -279,11 +196,6 @@ function App() {
         item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
       ),
     )
-    setPlaylistTracks((currentTracks) =>
-      currentTracks.map((item) =>
-        item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
-      ),
-    )
 
     try {
       const response = await fetch(`${API_URL}/tracks/${track.id}/favorite`, {
@@ -299,92 +211,62 @@ function App() {
           item.id === track.id ? { ...item, isFavorite: track.isFavorite } : item,
         ),
       )
-      setPlaylistTracks((currentTracks) =>
-        currentTracks.map((item) =>
-          item.id === track.id ? { ...item, isFavorite: track.isFavorite } : item,
-        ),
-      )
     }
   }
 
   if (isLoading) {
-    return (
-      <div style={{ display: 'grid', placeItems: 'center', height: '100vh' }}>
-        Загрузка...
-      </div>
-    )
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Загрузка...</div>
   }
 
-  if (visiblePage === 'login') {
+  // Если пользователь не авторизован, показываем страницу входа
+  if (!user) {
     return <LoginPage onSwitchToRegister={() => setActivePage('register')} />
   }
 
-  if (visiblePage === 'register') {
-    return <RegisterPage onSwitchToLogin={() => setActivePage('login')} />
+  // Если авторизован на странице auth, переходим на home
+  if (activePage === 'login' || activePage === 'register') {
+    setActivePage('home')
   }
+
+  const hasTracks = tracks.length > 0
+  const trackToPlay = currentTrack || (hasTracks ? tracks[0] : null)
 
   return (
     <MainLayout
-      activePage={visiblePage}
+      activePage={activePage}
       isDark={isDark}
       onNavigate={setActivePage}
       onThemeToggle={() => setIsDark((v) => !v)}
     >
-      {currentTrack && (
-        <>
-          {visiblePage === 'search' ? (
-            <SearchPage
-              tracks={tracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayTrack={handlePlayTrack}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          ) : visiblePage === 'playlists' ? (
-            <PlaylistsPage
-              tracks={tracks}
-              playlists={playlists}
-              selectedPlaylist={selectedPlaylist}
-              playlistTracks={playlistTracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onCreatePlaylist={handleCreatePlaylist}
-              onOpenPlaylist={handleOpenPlaylist}
-              onClosePlaylist={handleClosePlaylist}
-              onAddTrackToPlaylist={handleAddTrackToPlaylist}
-              onRemoveTrackFromPlaylist={handleRemoveTrackFromPlaylist}
-              onPlayTrack={handlePlayTrack}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          ) : visiblePage === 'liked' ? (
-            <FavoriteTracksPage
-              tracks={favoriteTracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayTrack={handlePlayTrack}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          ) : (
-            <DiscoverPage
-              tracks={tracks}
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayTrack={handlePlayTrack}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          )}
-          <FloatingPlayer
-            track={currentTrack}
-            isPlaying={isPlaying}
-            isShuffle={isShuffle}
-            onToggleFavorite={handleToggleFavorite}
-            onTogglePlay={handleTogglePlay}
-            onPlaybackEnd={handlePlaybackEnd}
-            onNextTrack={handleNextTrack}
-            onPreviousTrack={handlePreviousTrack}
-            onToggleShuffle={() => setIsShuffle((value) => !value)}
-          />
-        </>
+      {activePage === 'liked' ? (
+        <FavoriteTracksPage
+          tracks={favoriteTracks}
+          currentTrack={trackToPlay}
+          isPlaying={isPlaying}
+          onPlayTrack={handlePlayTrack}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      ) : (
+        <DiscoverPage
+          tracks={tracks}
+          currentTrack={trackToPlay}
+          isPlaying={isPlaying}
+          onPlayTrack={handlePlayTrack}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      )}
+      {trackToPlay && (
+        <FloatingPlayer
+          track={trackToPlay}
+          isPlaying={isPlaying}
+          isShuffle={isShuffle}
+          onToggleFavorite={handleToggleFavorite}
+          onTogglePlay={handleTogglePlay}
+          onPlaybackEnd={handlePlaybackEnd}
+          onNextTrack={handleNextTrack}
+          onPreviousTrack={handlePreviousTrack}
+          onToggleShuffle={() => setIsShuffle((value) => !value)}
+        />
       )}
     </MainLayout>
   )
