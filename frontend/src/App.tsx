@@ -8,6 +8,7 @@ import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
 import { useAuth } from './context/AuthContext'
 import type { Track } from './data/mock'
 
+
 interface ApiTrack {
   id: number
   title: string
