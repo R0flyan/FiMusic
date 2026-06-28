@@ -1,4 +1,5 @@
-// import { Logo } from '../Logo/Logo'
+import { useState, useRef, useEffect } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import './Header.css'
 
 interface HeaderProps {
@@ -7,10 +8,34 @@ interface HeaderProps {
 }
 
 export function Header({ onThemeToggle, isDark }: HeaderProps) {
+  const { user, logout } = useAuth()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const actionsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (actionsRef.current && !actionsRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
+  const handleLogout = () => {
+    logout()
+    setIsMenuOpen(false)
+  }
+
+  const avatarLetter = user ? user.username.charAt(0).toUpperCase() : 'A'
+
   return (
     <header className="header">
-      {/* <Logo size={28} showText /> */}
-
       <div className="header__search">
         <SearchIcon />
         <input
@@ -20,7 +45,7 @@ export function Header({ onThemeToggle, isDark }: HeaderProps) {
         />
       </div>
 
-      <div className="header__actions">
+      <div className="header__actions" ref={actionsRef}>
         <button
           type="button"
           className="header__theme-btn"
@@ -29,9 +54,39 @@ export function Header({ onThemeToggle, isDark }: HeaderProps) {
         >
           {isDark ? <SunIcon /> : <MoonIcon />}
         </button>
-        <button type="button" className="header__avatar" aria-label="Профиль">
-          <span>A</span>
+
+        <button
+          type="button"
+          className="header__avatar"
+          onClick={() => setIsMenuOpen((v) => !v)}
+          aria-label="Профиль"
+        >
+          <span>{avatarLetter}</span>
         </button>
+
+        {isMenuOpen && (
+          <div className="header__menu">
+            {user ? (
+              <>
+                <div className="header__menu-user">
+                  <div className="header__menu-username">{user.username}</div>
+                  <div className="header__menu-email">{user.email}</div>
+                </div>
+                <div className="header__menu-divider" />
+                <button
+                  type="button"
+                  className="header__menu-item header__menu-item--logout"
+                  onClick={handleLogout}
+                >
+                  <LogoutIcon />
+                  Выйти
+                </button>
+              </>
+            ) : (
+              <div className="header__menu-item">Не авторизован</div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   )
@@ -64,6 +119,14 @@ function SunIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5" />
       <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function LogoutIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
