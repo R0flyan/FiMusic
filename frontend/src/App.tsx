@@ -5,6 +5,9 @@ import { FavoriteTracksPage } from './pages/FavoriteTracksPage'
 import { PlaylistsPage } from './pages/PlaylistsPage'
 import { SearchPage } from './pages/SearchPage'
 import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
+import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
+import { useAuth } from './context/AuthContext'
 import type { Track } from './data/mock'
 
 interface ApiTrack {
@@ -19,7 +22,8 @@ interface ApiTrack {
 }
 
 const API_URL = 'http://localhost:8080'
-type AppPage = 'home' | 'search' | 'playlists' | 'liked'
+type MainPage = 'home' | 'search' | 'playlists' | 'liked'
+type AppPage = MainPage | 'login' | 'register'
 
 export interface Playlist {
   id: number
@@ -64,6 +68,7 @@ const mapApiPlaylist = (playlist: ApiPlaylist): Playlist => ({
 })
 
 function App() {
+  const { user, isLoading } = useAuth()
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark'
   })
@@ -77,6 +82,12 @@ function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
   const currentTrack = tracks[currentTrackIndex] ?? null
   const favoriteTracks = tracks.filter((track) => track.isFavorite)
+  const visiblePage: AppPage =
+    !user && activePage !== 'login' && activePage !== 'register'
+      ? 'login'
+      : user && (activePage === 'login' || activePage === 'register')
+        ? 'home'
+        : activePage
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
@@ -84,6 +95,15 @@ function App() {
   }, [isDark])
 
   useEffect(() => {
+    if (!user) {
+      setTracks([])
+      setPlaylists([])
+      setSelectedPlaylist(null)
+      setPlaylistTracks([])
+      setIsPlaying(false)
+      return
+    }
+
     fetch(`${API_URL}/tracks`)
       .then((res) => res.json())
       .then((data: ApiTrack[]) => {
@@ -97,15 +117,17 @@ function App() {
         setTracks(mappedTracks)
         setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
-  }, [])
+  }, [user])
 
   const loadPlaylists = useCallback(() => {
+    if (!user) return
+
     fetch(`${API_URL}/playlists`)
       .then((res) => res.json())
       .then((data: ApiPlaylist[]) => {
         setPlaylists(data.map(mapApiPlaylist))
       })
-  }, [])
+  }, [user])
 
   useEffect(() => {
     loadPlaylists()
@@ -285,16 +307,32 @@ function App() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div style={{ display: 'grid', placeItems: 'center', height: '100vh' }}>
+        Загрузка...
+      </div>
+    )
+  }
+
+  if (visiblePage === 'login') {
+    return <LoginPage onSwitchToRegister={() => setActivePage('register')} />
+  }
+
+  if (visiblePage === 'register') {
+    return <RegisterPage onSwitchToLogin={() => setActivePage('login')} />
+  }
+
   return (
     <MainLayout
-      activePage={activePage}
+      activePage={visiblePage}
       isDark={isDark}
       onNavigate={setActivePage}
       onThemeToggle={() => setIsDark((v) => !v)}
     >
       {currentTrack && (
         <>
-          {activePage === 'search' ? (
+          {visiblePage === 'search' ? (
             <SearchPage
               tracks={tracks}
               currentTrack={currentTrack}
@@ -302,7 +340,7 @@ function App() {
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
             />
-          ) : activePage === 'playlists' ? (
+          ) : visiblePage === 'playlists' ? (
             <PlaylistsPage
               tracks={tracks}
               playlists={playlists}
@@ -318,7 +356,7 @@ function App() {
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
             />
-          ) : activePage === 'liked' ? (
+          ) : visiblePage === 'liked' ? (
             <FavoriteTracksPage
               tracks={favoriteTracks}
               currentTrack={currentTrack}
