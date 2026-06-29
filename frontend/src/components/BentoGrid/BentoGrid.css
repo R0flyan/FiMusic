@@ -150,3 +150,38 @@
     min-height: 160px;
   }
 }
+
+@media (max-width: 600px) {
+  .bento {
+    gap: 12px;
+  }
+
+  .bento__hero,
+  .bento__card {
+    border-radius: 16px;
+  }
+
+  .bento__hero {
+    min-height: 0;
+  }
+
+  .bento__hero-content {
+    padding: 18px;
+  }
+
+  .bento__title {
+    font-size: 24px;
+  }
+
+  .bento__side {
+    gap: 12px;
+  }
+
+  .bento__card .bento-cover {
+    width: 84px;
+  }
+
+  .bento__card-content {
+    padding: 12px 14px;
+  }
+}

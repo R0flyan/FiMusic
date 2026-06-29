@@ -75,12 +75,13 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isShuffle, setIsShuffle] = useState(false)
   const [tracks, setTracks] = useState<Track[]>([])
+  const [playbackQueue, setPlaybackQueue] = useState<Track[]>([])
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([])
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const [activePage, setActivePage] = useState<AppPage>('home')
-  const currentTrack = tracks[currentTrackIndex] ?? null
+  const currentTrack = playbackQueue[currentTrackIndex] ?? null
   const favoriteTracks = tracks.filter((track) => track.isFavorite)
   const visiblePage: AppPage =
     !user && activePage !== 'login' && activePage !== 'register'
@@ -97,6 +98,7 @@ function App() {
   useEffect(() => {
     if (!user) {
       setTracks([])
+      setPlaybackQueue([])
       setPlaylists([])
       setSelectedPlaylist(null)
       setPlaylistTracks([])
@@ -115,6 +117,7 @@ function App() {
           : 0
 
         setTracks(mappedTracks)
+        setPlaybackQueue(mappedTracks)
         setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
   }, [user])
@@ -201,10 +204,24 @@ function App() {
     )
   }
 
+  const getQueueForTrack = (track: Track) => {
+    if (visiblePage === 'playlists' && selectedPlaylist && playlistTracks.length > 0) {
+      return playlistTracks
+    }
+
+    if (visiblePage === 'liked' && favoriteTracks.some((item) => item.id === track.id)) {
+      return favoriteTracks
+    }
+
+    return tracks
+  }
+
   const handlePlayTrack = (track: Track) => {
-    const index = tracks.findIndex((item) => item.id === track.id)
+    const nextQueue = getQueueForTrack(track)
+    const index = nextQueue.findIndex((item) => item.id === track.id)
     if (index === -1) return
 
+    setPlaybackQueue(nextQueue)
     setCurrentTrackIndex(index)
     localStorage.setItem('currentTrackId', track.id.toString())
     localStorage.removeItem('currentTrackTime')
@@ -216,11 +233,16 @@ function App() {
   }, [])
 
   const handleNextTrack = () => {
-    if (tracks.length === 0) return
+    if (playbackQueue.length === 0) return
+
+    if (isShuffle) {
+      handleRandomTrack()
+      return
+    }
 
     setCurrentTrackIndex((index) => {
-      const nextIndex = (index + 1) % tracks.length
-      localStorage.setItem('currentTrackId', tracks[nextIndex].id.toString())
+      const nextIndex = (index + 1) % playbackQueue.length
+      localStorage.setItem('currentTrackId', playbackQueue[nextIndex].id.toString())
       localStorage.removeItem('currentTrackTime')
       return nextIndex
     })
@@ -228,11 +250,11 @@ function App() {
   }
 
   const handlePreviousTrack = () => {
-    if (tracks.length === 0) return
+    if (playbackQueue.length === 0) return
 
     setCurrentTrackIndex((index) => {
-      const previousIndex = (index - 1 + tracks.length) % tracks.length
-      localStorage.setItem('currentTrackId', tracks[previousIndex].id.toString())
+      const previousIndex = (index - 1 + playbackQueue.length) % playbackQueue.length
+      localStorage.setItem('currentTrackId', playbackQueue[previousIndex].id.toString())
       localStorage.removeItem('currentTrackTime')
       return previousIndex
     })
@@ -240,34 +262,29 @@ function App() {
   }
 
   const getRandomTrackIndex = () => {
-    if (tracks.length <= 1) return 0
+    if (playbackQueue.length <= 1) return 0
 
     let randomIndex = currentTrackIndex
 
     while (randomIndex === currentTrackIndex) {
-      randomIndex = Math.floor(Math.random() * tracks.length)
+      randomIndex = Math.floor(Math.random() * playbackQueue.length)
     }
 
     return randomIndex
   }
 
   const handleRandomTrack = () => {
-    if (tracks.length === 0) return
+    if (playbackQueue.length === 0) return
 
     const randomIndex = getRandomTrackIndex()
 
     setCurrentTrackIndex(randomIndex)
-    localStorage.setItem('currentTrackId', tracks[randomIndex].id.toString())
+    localStorage.setItem('currentTrackId', playbackQueue[randomIndex].id.toString())
     localStorage.removeItem('currentTrackTime')
     setIsPlaying(true)
   }
 
   const handlePlaybackEnd = () => {
-    if (isShuffle) {
-      handleRandomTrack()
-      return
-    }
-
     handleNextTrack()
   }
 
@@ -280,6 +297,11 @@ function App() {
       ),
     )
     setPlaylistTracks((currentTracks) =>
+      currentTracks.map((item) =>
+        item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
+      ),
+    )
+    setPlaybackQueue((currentTracks) =>
       currentTracks.map((item) =>
         item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
       ),
@@ -300,6 +322,11 @@ function App() {
         ),
       )
       setPlaylistTracks((currentTracks) =>
+        currentTracks.map((item) =>
+          item.id === track.id ? { ...item, isFavorite: track.isFavorite } : item,
+        ),
+      )
+      setPlaybackQueue((currentTracks) =>
         currentTracks.map((item) =>
           item.id === track.id ? { ...item, isFavorite: track.isFavorite } : item,
         ),

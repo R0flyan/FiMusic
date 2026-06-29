@@ -67,3 +67,25 @@
   font-size: 12px;
   color: var(--color-ink-muted);
 }
+
+@media (max-width: 600px) {
+  .h-scroll__header {
+    margin-bottom: 12px;
+  }
+
+  .h-scroll__track {
+    gap: 12px;
+    margin-inline: -14px;
+    padding-inline: 14px;
+    mask-image: none;
+  }
+
+  .h-scroll__card {
+    flex-basis: 132px;
+  }
+
+  .h-scroll__cover {
+    width: 132px;
+    height: 132px;
+  }
+}

@@ -1,46 +1,63 @@
-# FiMusic
+﻿# FiMusic
 
-FiMusic is a music web app with a React frontend, FastAPI backend, PostgreSQL database, and local media storage.
+FiMusic - музыкальное веб-приложение с React-фронтендом, FastAPI-бэкендом, PostgreSQL в Docker и локальным хранением медиафайлов.
 
-## Stack
+## Стек
 
 - Frontend: React, TypeScript, Vite
 - Backend: FastAPI, SQLAlchemy, Alembic
-- Database: PostgreSQL 17 in Docker
-- Media: local files in `backend/media`
+- Database: PostgreSQL 17 в Docker
+- Auth: JWT, регистрация и вход пользователя
+- Media: локальные файлы в `backend/media`
 
-## Requirements
+## Что уже есть
+
+- список треков из базы данных;
+- воспроизведение локальных аудиофайлов;
+- обложки треков;
+- избранные треки;
+- поиск по трекам;
+- плейлисты;
+- регистрация и авторизация;
+- импорт локальных mp3 в базу;
+- адаптивный интерфейс для desktop/mobile.
+
+## Требования
 
 - Node.js
 - Python 3.12+
 - Docker Desktop
 - Git
 
-## Environment
+## Переменные окружения
 
-Create local env file from the example:
+Создай локальный `.env` из примера:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Default local database URL:
+Основные значения по умолчанию:
 
 ```env
+POSTGRES_DB=fimusic_db
+POSTGRES_USER=fimusic_teamlead
+POSTGRES_PASSWORD=fimusic_password
 DATABASE_URL=postgresql+psycopg://fimusic_teamlead:fimusic_password@localhost:5433/fimusic_db
+SERVER_PORT=8080
 ```
 
-PostgreSQL is exposed on host port `5433` to avoid conflicts with a local Postgres on `5432`.
+PostgreSQL проброшен на порт `5433`, чтобы не конфликтовать с локальным PostgreSQL на `5432`.
 
-## Database
+## Запуск базы данных
 
-Start PostgreSQL:
+Из корня проекта:
 
 ```powershell
 docker compose up -d postgres
 ```
 
-Check container status:
+Проверить контейнер:
 
 ```powershell
 docker compose ps
@@ -48,63 +65,142 @@ docker compose ps
 
 ## Backend
 
-Create and activate virtual environment:
+Перейди в папку backend:
 
 ```powershell
 cd backend
+```
+
+Создай виртуальное окружение:
+
+```powershell
 python -m venv .venv
+```
+
+Активируй его:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install dependencies:
+Установи зависимости:
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-Apply migrations in /backend:
+Примени миграции:
 
 ```powershell
 alembic upgrade head
 ```
 
-Run API server:
+Запусти API:
 
 ```powershell
 uvicorn app.main:app --reload --port 8080
 ```
 
-Backend URLs:
+Полезные URL:
 
-- API health: `http://localhost:8080/health`
-- Tracks: `http://localhost:8080/tracks`
-- API docs: `http://localhost:8080/docs`
-- Media files: `http://localhost:8080/media/...`
+- Healthcheck: `http://localhost:8080/health`
+- Swagger: `http://localhost:8080/docs`
+- Треки: `http://localhost:8080/tracks`
+- Плейлисты: `http://localhost:8080/playlists`
+- Auth: `http://localhost:8080/auth/...`
+- Медиафайлы: `http://localhost:8080/media/...`
 
-## Media Files
+## Frontend
 
-Local audio and covers are not committed to git. Create folders manually:
+Перейди в папку frontend:
 
-Put mp3 files into:
+```powershell
+cd frontend
+```
+
+Установи зависимости:
+
+```powershell
+npm install
+```
+
+Запусти dev-сервер:
+
+```powershell
+npm run dev
+```
+
+Frontend будет доступен по адресу:
+
+```text
+http://localhost:5173
+```
+
+Сборка frontend:
+
+```powershell
+npm run build
+```
+
+## Быстрый локальный запуск
+
+Терминал 1:
+
+```powershell
+docker compose up -d postgres
+```
+
+Терминал 2:
+
+```powershell
+cd backend
+.\.venv\Scripts\Activate.ps1
+alembic upgrade head
+uvicorn app.main:app --reload --port 8080
+```
+
+Терминал 3:
+
+```powershell
+cd frontend
+npm run dev
+```
+
+## Медиафайлы
+
+Аудиофайлы и обложки не коммитятся в Git.
+
+Создай папки:
+
+```text
+backend/media/tracks/
+backend/media/covers/
+```
+
+Клади mp3 в:
 
 ```text
 backend/media/tracks/
 ```
 
-Put cover images into:
+Клади обложки в:
 
 ```text
 backend/media/covers/
 ```
 
-Track rows in the database should store paths like:
+Пути в базе должны выглядеть так:
 
 ```text
 /media/tracks/example.mp3
 /media/covers/example.jpg
 ```
 
-Import new local tracks into the database:
+## Импорт треков
+
+Скрипт импорта сканирует `backend/media/tracks/*.mp3`, читает длительность и метаданные, пропускает уже добавленные файлы и создает записи в таблице `tracks`.
+
+Запуск:
 
 ```powershell
 cd backend
@@ -112,71 +208,17 @@ cd backend
 python scripts/import_tracks.py
 ```
 
-The importer scans `backend/media/tracks/*.mp3`, skips already imported files, reads duration from mp3 metadata, and creates rows in `tracks`.
-
-Recommended file name format:
+Рекомендуемый формат имени файла:
 
 ```text
 Artist - Title.mp3
 ```
 
-If the file does not use this format, the importer uses `Unknown Artist` and the file name as the title unless mp3 metadata contains artist/title tags.
-If the audio files are not processed correctly by the script, you will need to manually change the data in the database entry.
+Если формат другой, скрипт попытается взять данные из mp3-тегов. Если тегов нет, часть данных придется поправить в базе вручную.
 
-## Frontend
+## pgAdmin
 
-Install dependencies:
-
-```powershell
-cd frontend
-npm install
-```
-
-Run frontend dev server:
-
-```powershell
-npm run dev
-```
-
-Frontend URL:
-
-```text
-http://localhost:5173
-```
-
-Build frontend:
-
-```powershell
-npm run build
-```
-
-## Typical Local Startup
-
-Terminal 1:
-
-```powershell
-docker compose up -d postgres
-```
-
-Terminal 2:
-
-```powershell
-cd backend
-.\.venv\Scripts\Activate.ps1
-alembic upgrade head
-uvicorn app.main:app --reload --port 8080
-```
-
-Terminal 3:
-
-```powershell
-cd frontend
-npm run dev
-```
-
-## pgAdmin Connection
-
-Use these settings to inspect the Docker database:
+Для подключения к базе из pgAdmin:
 
 ```text
 Host: localhost
@@ -186,8 +228,38 @@ Username: fimusic_teamlead
 Password: fimusic_password
 ```
 
-## Notes
+## Миграции Alembic
 
-- Do not commit `.env`, virtual environments, `node_modules`, build output, or media files.
-- Backend CORS currently allows `http://localhost:5173`.
-- The frontend expects the backend to run on `http://localhost:8080`.
+Создать новую миграцию после изменения моделей:
+
+```powershell
+cd backend
+alembic revision --autogenerate -m "message"
+```
+
+Применить миграции:
+
+```powershell
+alembic upgrade head
+```
+
+Проверить текущую миграцию базы:
+
+```powershell
+alembic current
+```
+
+Проверить head-миграции проекта:
+
+```powershell
+alembic heads
+```
+
+## Важные замечания
+
+- Не коммить `.env`.
+- Не коммить `.venv`, `node_modules`, `dist`, `__pycache__` и локальные медиафайлы.
+- Backend сейчас разрешает CORS для `http://localhost:5173`.
+- Frontend ожидает backend на `http://localhost:8080`.
+- После pull/merge, где есть новые backend-зависимости, запускай `pip install -r backend/requirements.txt`.
+- После pull/merge, где есть новые миграции, запускай `alembic upgrade head` из папки `backend`.

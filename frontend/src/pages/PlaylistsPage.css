@@ -197,6 +197,10 @@
 }
 
 @media (max-width: 800px) {
+  .playlists-page {
+    padding-top: 24px;
+  }
+
   .playlists-page__header,
   .playlists-page__section-head {
     align-items: stretch;
@@ -214,5 +218,20 @@
 
   .playlists-page__track-item {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .playlists-page__create {
+    flex-direction: column;
+  }
+
+  .playlists-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .playlists-page__card {
+    border-radius: 14px;
   }
 }
