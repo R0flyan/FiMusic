@@ -242,6 +242,15 @@ export function FloatingPlayer({
               <p className="floating-player__queue-track">{track.title}</p>
               <p className="floating-player__queue-artist">{track.artist}</p>
               <p className="floating-player__queue-album">{track.album}</p>
+              <button
+                type="button"
+                className={`floating-player__mobile-like${track.isFavorite ? ' floating-player__mobile-like--active' : ''}`}
+                onClick={() => onToggleFavorite(track)}
+                aria-label={track.isFavorite ? 'Убрать из избранного' : 'Добавить в избранное'}
+              >
+                <HeartIcon />
+                {/* <span>Лайк</span> */}
+              </button>
             </div>
           </div>
         )}
@@ -261,7 +270,7 @@ function formatTime(seconds: number) {
 
 function PlayIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M8 5v14l11-7z" />
     </svg>
   )
@@ -269,7 +278,7 @@ function PlayIcon() {
 
 function PauseIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="38" height="38" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <rect x="6" y="5" width="4" height="14" />
       <rect x="14" y="5" width="4" height="14" />
     </svg>

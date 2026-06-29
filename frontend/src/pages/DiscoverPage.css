@@ -48,7 +48,16 @@
 }
 
 @media (max-width: 700px) {
+  .discover__hero-text {
+    padding-top: 24px;
+    margin-bottom: 20px;
+  }
+
   .discover__heading {
     font-size: 36px;
+  }
+
+  .discover__tagline {
+    font-size: 14px;
   }
 }

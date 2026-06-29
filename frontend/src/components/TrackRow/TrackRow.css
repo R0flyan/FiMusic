@@ -147,11 +147,30 @@
 
 @media (max-width: 700px) {
   .track-row__actions {
-    display: none;
+    display: flex;
+    opacity: 1;
   }
 
   .track-row {
-    grid-template-columns: 28px 40px 1fr auto 32px;
+    grid-template-columns: 28px 40px minmax(0, 1fr) 32px 32px;
     gap: 10px;
+    padding: 8px 6px;
+  }
+
+  .track-row__actions .track-row__btn:last-child {
+    display: none;
+  }
+
+  .track-row__cover {
+    width: 40px;
+    height: 40px;
+  }
+
+  .track-row__duration {
+    display: none;
+  }
+
+  .track-row__play {
+    opacity: 1;
   }
 }

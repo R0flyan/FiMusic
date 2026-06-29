@@ -36,14 +36,14 @@ export function Header({ onThemeToggle, isDark }: HeaderProps) {
 
   return (
     <header className="header">
-      <div className="header__search">
+      {/* <div className="header__search">
         <SearchIcon />
         <input
           type="search"
           placeholder="Треки, артисты, альбомы..."
           aria-label="Поиск"
         />
-      </div>
+      </div> */}
 
       <div className="header__actions" ref={actionsRef}>
         <button
@@ -92,14 +92,14 @@ export function Header({ onThemeToggle, isDark }: HeaderProps) {
   )
 }
 
-function SearchIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M16 16l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
-}
+// function SearchIcon() {
+//   return (
+//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+//       <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.5" />
+//       <path d="M16 16l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+//     </svg>
+//   )
+// }
 
 function MoonIcon() {
   return (
