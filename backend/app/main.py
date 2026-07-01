@@ -6,9 +6,10 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.api.auth import router as auth_router
 from app.api.playlists import router as playlists_router
 from app.api.tracks import router as tracks_router
+from app.config import settings
 
 MEDIA_CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "http://localhost:5173",
+    "Access-Control-Allow-Origin": settings.frontend_origin,
     "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     "Access-Control-Allow-Headers": "Range, Content-Type, Origin, Accept",
     "Access-Control-Expose-Headers": "Accept-Ranges, Content-Length, Content-Range",
@@ -41,7 +42,7 @@ app = FastAPI(title="FiMusic API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[settings.frontend_origin],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

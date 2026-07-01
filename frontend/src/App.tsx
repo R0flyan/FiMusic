@@ -8,6 +8,7 @@ import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { useAuth } from './context/AuthContext'
+import { API_URL } from './config'
 import type { Track } from './data/mock'
 
 interface ApiTrack {
@@ -21,7 +22,6 @@ interface ApiTrack {
   is_favorite: boolean
 }
 
-const API_URL = 'http://localhost:8080'
 type MainPage = 'home' | 'search' | 'playlists' | 'liked'
 type AppPage = MainPage | 'login' | 'register'
 
