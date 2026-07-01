@@ -6,6 +6,9 @@ backend/.venv/
 backend/__pycache__/
 *.pyc
 backend/media/
+__pycache__/
+**/__pycache__/
+*.py[cod]
 
 # Frontend
 frontend/node_modules/
