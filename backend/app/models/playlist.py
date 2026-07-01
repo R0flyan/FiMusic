@@ -10,6 +10,11 @@ class Playlist(Base):
     __tablename__ = "playlists"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(String(500), nullable=True)
     cover_path: Mapped[str | None] = mapped_column(String(500), nullable=True)

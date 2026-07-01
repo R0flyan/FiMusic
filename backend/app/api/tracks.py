@@ -3,8 +3,10 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.core.deps import get_current_active_user
 from app.models.favorite_track import FavoriteTrack
 from app.models.track import Track
+from app.models.user import User
 from app.schemas.track import TrackRead
 
 router = APIRouter(prefix="/tracks", tags=["tracks"])
@@ -18,7 +20,7 @@ def _escape_like(value: str) -> str:
     )
 
 
-def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
+def _serialize_tracks(db: Session, tracks: list[Track], user_id: int) -> list[TrackRead]:
     track_ids = [track.id for track in tracks]
     favorite_track_ids = set()
 
@@ -26,7 +28,10 @@ def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
         favorite_track_ids = {
             track_id
             for (track_id,) in db.query(FavoriteTrack.track_id)
-            .filter(FavoriteTrack.track_id.in_(track_ids))
+            .filter(
+                FavoriteTrack.user_id == user_id,
+                FavoriteTrack.track_id.in_(track_ids),
+            )
             .all()
         }
 
@@ -42,6 +47,7 @@ def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
 def get_tracks(
     search: str | None = Query(default=None, max_length=255),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
     query = db.query(Track)
 
@@ -56,18 +62,29 @@ def get_tracks(
         )
 
     tracks = query.order_by(Track.id).all()
-    return _serialize_tracks(db, tracks)
+    return _serialize_tracks(db, tracks, current_user.id)
 
 
 @router.post("/{track_id}/favorite", response_model=TrackRead)
-def add_favorite_track(track_id: int, db: Session = Depends(get_db)):
+def add_favorite_track(
+    track_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
     track = db.get(Track, track_id)
     if track is None:
         raise HTTPException(status_code=404, detail="Track not found")
 
-    favorite = db.query(FavoriteTrack).filter(FavoriteTrack.track_id == track_id).first()
+    favorite = (
+        db.query(FavoriteTrack)
+        .filter(
+            FavoriteTrack.user_id == current_user.id,
+            FavoriteTrack.track_id == track_id,
+        )
+        .first()
+    )
     if favorite is None:
-        db.add(FavoriteTrack(track_id=track_id))
+        db.add(FavoriteTrack(user_id=current_user.id, track_id=track_id))
         db.commit()
         db.refresh(track)
 
@@ -75,8 +92,19 @@ def add_favorite_track(track_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete("/{track_id}/favorite", status_code=204)
-def remove_favorite_track(track_id: int, db: Session = Depends(get_db)):
-    favorite = db.query(FavoriteTrack).filter(FavoriteTrack.track_id == track_id).first()
+def remove_favorite_track(
+    track_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    favorite = (
+        db.query(FavoriteTrack)
+        .filter(
+            FavoriteTrack.user_id == current_user.id,
+            FavoriteTrack.track_id == track_id,
+        )
+        .first()
+    )
     if favorite is not None:
         db.delete(favorite)
         db.commit()
