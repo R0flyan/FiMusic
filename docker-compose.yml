@@ -7,9 +7,6 @@ services:
     env_file:
       - .env
 
-    ports:
-      - "5433:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -46,11 +43,13 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
     container_name: fimusic-frontend
     restart: unless-stopped
 
     ports:
-      - "5173:5173"
+      - "3000:80"
 
     depends_on:
       - backend
