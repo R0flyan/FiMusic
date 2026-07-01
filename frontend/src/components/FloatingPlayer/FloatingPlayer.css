@@ -236,6 +236,11 @@
   font-size: 14px;
 }
 
+.floating-player__visualizer {
+  margin-top: 10px;
+  max-width: 100%;
+}
+
 .floating-player__like {
   width: 28px;
   height: 28px;
@@ -407,6 +412,10 @@
   .floating-player__artist {
     margin-top: 2px;
     font-size: 12px;
+  }
+
+  .floating-player__visualizer {
+    display: none;
   }
 
   .floating-player__controls {

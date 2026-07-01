@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Track } from '../../data/mock'
+import { AudioVisualizer } from '../AudioVisualizer/AudioVisualizer'
 import { WaveProgress } from '../WaveProgress/WaveProgress'
 import './FloatingPlayer.css'
 
@@ -52,14 +53,28 @@ export function FloatingPlayer({
 
     if (!audio) return
 
+    audio.load()
+
     if (isPlaying) {
-      void audio.play().catch(() => {
-        onPlaybackEnd()
+      void audio.play().catch((error) => {
+        console.warn('Audio playback failed:', error)
+      })
+    }
+  }, [track.audioUrl])
+
+  useEffect(() => {
+    const audio = audioRef.current
+
+    if (!audio) return
+
+    if (isPlaying) {
+      void audio.play().catch((error) => {
+        console.warn('Audio playback failed:', error)
       })
     } else {
       audio.pause()
     }
-  }, [isPlaying, onPlaybackEnd, track.audioUrl])
+  }, [isPlaying])
 
   useEffect(() => {
     localStorage.setItem('volume', volume.toString())
@@ -152,6 +167,11 @@ export function FloatingPlayer({
               </button>
             </div>
             <span className="floating-player__artist">{track.artist}</span>
+            <AudioVisualizer
+              audioRef={audioRef}
+              isPlaying={isPlaying}
+              className="floating-player__visualizer"
+            />
           </div>
 
           <div className="floating-player__controls">
@@ -226,6 +246,7 @@ export function FloatingPlayer({
         <audio
           ref={audioRef}
           src={track.audioUrl}
+          crossOrigin="anonymous"
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
           onEnded={handleEnded}

@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.deps import get_current_active_user
 from app.db.database import get_db
 from app.models.favorite_track import FavoriteTrack
 from app.models.playlist import Playlist, PlaylistTrack
 from app.models.track import Track
+from app.models.user import User
 from app.schemas.playlist import (
     PlaylistCreate,
     PlaylistDetailRead,
@@ -17,8 +19,15 @@ from app.schemas.track import TrackRead
 router = APIRouter(prefix="/playlists", tags=["playlists"])
 
 
-def _get_playlist(db: Session, playlist_id: int) -> Playlist:
-    playlist = db.get(Playlist, playlist_id)
+def _get_playlist(db: Session, playlist_id: int, user_id: int) -> Playlist:
+    playlist = (
+        db.query(Playlist)
+        .filter(
+            Playlist.id == playlist_id,
+            Playlist.user_id == user_id,
+        )
+        .first()
+    )
     if playlist is None:
         raise HTTPException(status_code=404, detail="Playlist not found")
 
@@ -40,7 +49,7 @@ def _serialize_playlist(playlist: Playlist, track_count: int) -> PlaylistRead:
     )
 
 
-def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
+def _serialize_tracks(db: Session, tracks: list[Track], user_id: int) -> list[TrackRead]:
     track_ids = [track.id for track in tracks]
     favorite_track_ids = set()
 
@@ -48,7 +57,10 @@ def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
         favorite_track_ids = {
             track_id
             for (track_id,) in db.query(FavoriteTrack.track_id)
-            .filter(FavoriteTrack.track_id.in_(track_ids))
+            .filter(
+                FavoriteTrack.user_id == user_id,
+                FavoriteTrack.track_id.in_(track_ids),
+            )
             .all()
         }
 
@@ -60,7 +72,11 @@ def _serialize_tracks(db: Session, tracks: list[Track]) -> list[TrackRead]:
     ]
 
 
-def _serialize_playlist_detail(db: Session, playlist: Playlist) -> PlaylistDetailRead:
+def _serialize_playlist_detail(
+    db: Session,
+    playlist: Playlist,
+    user_id: int,
+) -> PlaylistDetailRead:
     tracks = (
         db.query(Track)
         .join(PlaylistTrack, PlaylistTrack.track_id == Track.id)
@@ -72,20 +88,30 @@ def _serialize_playlist_detail(db: Session, playlist: Playlist) -> PlaylistDetai
     return PlaylistDetailRead.model_validate(playlist).model_copy(
         update={
             "track_count": len(tracks),
-            "tracks": _serialize_tracks(db, tracks),
+            "tracks": _serialize_tracks(db, tracks, user_id),
         }
     )
 
 
 @router.get("", response_model=list[PlaylistRead])
-def get_playlists(db: Session = Depends(get_db)):
-    playlists = db.query(Playlist).order_by(Playlist.id).all()
+def get_playlists(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    playlists = (
+        db.query(Playlist)
+        .filter(Playlist.user_id == current_user.id)
+        .order_by(Playlist.id)
+        .all()
+    )
     counts = {
         playlist_id: track_count
         for playlist_id, track_count in db.query(
             PlaylistTrack.playlist_id,
             func.count(PlaylistTrack.id),
         )
+        .join(Playlist, Playlist.id == PlaylistTrack.playlist_id)
+        .filter(Playlist.user_id == current_user.id)
         .group_by(PlaylistTrack.playlist_id)
         .all()
     }
@@ -97,8 +123,12 @@ def get_playlists(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=PlaylistRead, status_code=201)
-def create_playlist(payload: PlaylistCreate, db: Session = Depends(get_db)):
-    playlist = Playlist(**payload.model_dump())
+def create_playlist(
+    payload: PlaylistCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    playlist = Playlist(**payload.model_dump(), user_id=current_user.id)
     db.add(playlist)
     db.commit()
     db.refresh(playlist)
@@ -107,9 +137,13 @@ def create_playlist(payload: PlaylistCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/{playlist_id}", response_model=PlaylistDetailRead)
-def get_playlist(playlist_id: int, db: Session = Depends(get_db)):
-    playlist = _get_playlist(db, playlist_id)
-    return _serialize_playlist_detail(db, playlist)
+def get_playlist(
+    playlist_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    playlist = _get_playlist(db, playlist_id, current_user.id)
+    return _serialize_playlist_detail(db, playlist, current_user.id)
 
 
 @router.patch("/{playlist_id}", response_model=PlaylistRead)
@@ -117,8 +151,9 @@ def update_playlist(
     playlist_id: int,
     payload: PlaylistUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
-    playlist = _get_playlist(db, playlist_id)
+    playlist = _get_playlist(db, playlist_id, current_user.id)
     updates = payload.model_dump(exclude_unset=True)
 
     if updates.get("title") is None and "title" in updates:
@@ -134,8 +169,12 @@ def update_playlist(
 
 
 @router.delete("/{playlist_id}", status_code=204)
-def delete_playlist(playlist_id: int, db: Session = Depends(get_db)):
-    playlist = _get_playlist(db, playlist_id)
+def delete_playlist(
+    playlist_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    playlist = _get_playlist(db, playlist_id, current_user.id)
     db.delete(playlist)
     db.commit()
 
@@ -147,8 +186,9 @@ def add_playlist_track(
     playlist_id: int,
     track_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
-    playlist = _get_playlist(db, playlist_id)
+    playlist = _get_playlist(db, playlist_id, current_user.id)
     track = db.get(Track, track_id)
     if track is None:
         raise HTTPException(status_code=404, detail="Track not found")
@@ -179,7 +219,7 @@ def add_playlist_track(
         db.commit()
         db.refresh(playlist)
 
-    return _serialize_playlist_detail(db, playlist)
+    return _serialize_playlist_detail(db, playlist, current_user.id)
 
 
 @router.delete("/{playlist_id}/tracks/{track_id}", status_code=204)
@@ -187,8 +227,9 @@ def remove_playlist_track(
     playlist_id: int,
     track_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
 ):
-    _get_playlist(db, playlist_id)
+    _get_playlist(db, playlist_id, current_user.id)
     playlist_track = (
         db.query(PlaylistTrack)
         .filter(

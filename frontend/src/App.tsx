@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { MainLayout } from './layouts/MainLayout'
 import { DiscoverPage } from './pages/DiscoverPage'
 import { FavoriteTracksPage } from './pages/FavoriteTracksPage'
@@ -46,14 +46,23 @@ interface ApiPlaylistDetail extends ApiPlaylist {
   tracks: ApiTrack[]
 }
 
+const toMediaUrl = (path: string, cacheKey?: string | number) => {
+  const encodedPath = path
+    .split('/')
+    .map((part) => encodeURIComponent(part))
+    .join('/')
+
+  return `${API_URL}${encodedPath}${cacheKey ? `?v=${cacheKey}` : ''}`
+}
+
 const mapApiTrack = (track: ApiTrack, index: number): Track => ({
   id: track.id,
   title: track.title,
   artist: track.artist,
   album: track.album,
   duration: track.duration,
-  audioUrl: `${API_URL}${track.file_path}`,
-  coverUrl: track.cover_path ? `${API_URL}${track.cover_path}` : null,
+  audioUrl: toMediaUrl(track.file_path, track.id),
+  coverUrl: track.cover_path ? toMediaUrl(track.cover_path, track.id) : null,
   coverHue: index * 55,
   isFavorite: track.is_favorite,
 })
@@ -63,12 +72,12 @@ const mapApiPlaylist = (playlist: ApiPlaylist): Playlist => ({
   title: playlist.title,
   description: playlist.description,
   coverPath: playlist.cover_path,
-  coverUrl: playlist.cover_path ? `${API_URL}${playlist.cover_path}` : null,
+  coverUrl: playlist.cover_path ? toMediaUrl(playlist.cover_path, playlist.id) : null,
   trackCount: playlist.track_count,
 })
 
 function App() {
-  const { user, isLoading } = useAuth()
+  const { user, token, isLoading } = useAuth()
   const [isDark, setIsDark] = useState(() => {
     return localStorage.getItem('theme') === 'dark'
   })
@@ -89,6 +98,25 @@ function App() {
       : user && (activePage === 'login' || activePage === 'register')
         ? 'home'
         : activePage
+  const authHeaders = useMemo<HeadersInit | undefined>(
+    () => (token ? { Authorization: `Bearer ${token}` } : undefined),
+    [token],
+  )
+  const jsonAuthHeaders = useMemo<HeadersInit>(
+    () => {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+
+      if (!token) {
+        return headers
+      }
+
+      headers.Authorization = `Bearer ${token}`
+      return headers
+    },
+    [token],
+  )
 
   useEffect(() => {
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
@@ -96,7 +124,7 @@ function App() {
   }, [isDark])
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !token) {
       setTracks([])
       setPlaybackQueue([])
       setPlaylists([])
@@ -106,7 +134,9 @@ function App() {
       return
     }
 
-    fetch(`${API_URL}/tracks`)
+    fetch(`${API_URL}/tracks`, {
+      headers: authHeaders,
+    })
       .then((res) => res.json())
       .then((data: ApiTrack[]) => {
         const mappedTracks = data.map(mapApiTrack)
@@ -120,24 +150,28 @@ function App() {
         setPlaybackQueue(mappedTracks)
         setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
-  }, [user])
+  }, [authHeaders, token, user])
 
   const loadPlaylists = useCallback(() => {
-    if (!user) return
+    if (!user || !token) return
 
-    fetch(`${API_URL}/playlists`)
+    fetch(`${API_URL}/playlists`, {
+      headers: authHeaders,
+    })
       .then((res) => res.json())
       .then((data: ApiPlaylist[]) => {
         setPlaylists(data.map(mapApiPlaylist))
       })
-  }, [user])
+  }, [authHeaders, token, user])
 
   useEffect(() => {
     loadPlaylists()
   }, [loadPlaylists])
 
   const handleOpenPlaylist = async (playlist: Playlist) => {
-    const response = await fetch(`${API_URL}/playlists/${playlist.id}`)
+    const response = await fetch(`${API_URL}/playlists/${playlist.id}`, {
+      headers: authHeaders,
+    })
     if (!response.ok) return
 
     const data: ApiPlaylistDetail = await response.json()
@@ -153,9 +187,7 @@ function App() {
   const handleCreatePlaylist = async (title: string) => {
     const response = await fetch(`${API_URL}/playlists`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonAuthHeaders,
       body: JSON.stringify({
         title,
       }),
@@ -170,6 +202,7 @@ function App() {
   const handleAddTrackToPlaylist = async (playlist: Playlist, track: Track) => {
     const response = await fetch(`${API_URL}/playlists/${playlist.id}/tracks/${track.id}`, {
       method: 'POST',
+      headers: authHeaders,
     })
 
     if (!response.ok) return
@@ -187,6 +220,7 @@ function App() {
   const handleRemoveTrackFromPlaylist = async (playlist: Playlist, track: Track) => {
     const response = await fetch(`${API_URL}/playlists/${playlist.id}/tracks/${track.id}`, {
       method: 'DELETE',
+      headers: authHeaders,
     })
 
     if (!response.ok) return
@@ -232,6 +266,23 @@ function App() {
     setIsPlaying((v) => !v)
   }, [])
 
+  const updateCurrentTrack = (nextIndex: number) => {
+    const nextTrack = playbackQueue[nextIndex]
+    if (!nextTrack) return
+
+    setCurrentTrackIndex(nextIndex)
+    localStorage.setItem('currentTrackId', nextTrack.id.toString())
+    localStorage.removeItem('currentTrackTime')
+    setIsPlaying(true)
+  }
+
+  const getActualCurrentTrackIndex = () => {
+    if (!currentTrack) return currentTrackIndex
+
+    const actualIndex = playbackQueue.findIndex((track) => track.id === currentTrack.id)
+    return actualIndex >= 0 ? actualIndex : currentTrackIndex
+  }
+
   const handleNextTrack = () => {
     if (playbackQueue.length === 0) return
 
@@ -240,33 +291,26 @@ function App() {
       return
     }
 
-    setCurrentTrackIndex((index) => {
-      const nextIndex = (index + 1) % playbackQueue.length
-      localStorage.setItem('currentTrackId', playbackQueue[nextIndex].id.toString())
-      localStorage.removeItem('currentTrackTime')
-      return nextIndex
-    })
-    setIsPlaying(true)
+    const actualIndex = getActualCurrentTrackIndex()
+    const nextIndex = (actualIndex + 1) % playbackQueue.length
+    updateCurrentTrack(nextIndex)
   }
 
   const handlePreviousTrack = () => {
     if (playbackQueue.length === 0) return
 
-    setCurrentTrackIndex((index) => {
-      const previousIndex = (index - 1 + playbackQueue.length) % playbackQueue.length
-      localStorage.setItem('currentTrackId', playbackQueue[previousIndex].id.toString())
-      localStorage.removeItem('currentTrackTime')
-      return previousIndex
-    })
-    setIsPlaying(true)
+    const actualIndex = getActualCurrentTrackIndex()
+    const previousIndex = (actualIndex - 1 + playbackQueue.length) % playbackQueue.length
+    updateCurrentTrack(previousIndex)
   }
 
   const getRandomTrackIndex = () => {
     if (playbackQueue.length <= 1) return 0
 
-    let randomIndex = currentTrackIndex
+    const actualIndex = getActualCurrentTrackIndex()
+    let randomIndex = actualIndex
 
-    while (randomIndex === currentTrackIndex) {
+    while (randomIndex === actualIndex) {
       randomIndex = Math.floor(Math.random() * playbackQueue.length)
     }
 
@@ -278,10 +322,7 @@ function App() {
 
     const randomIndex = getRandomTrackIndex()
 
-    setCurrentTrackIndex(randomIndex)
-    localStorage.setItem('currentTrackId', playbackQueue[randomIndex].id.toString())
-    localStorage.removeItem('currentTrackTime')
-    setIsPlaying(true)
+    updateCurrentTrack(randomIndex)
   }
 
   const handlePlaybackEnd = () => {
@@ -310,6 +351,7 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/tracks/${track.id}/favorite`, {
         method: nextIsFavorite ? 'POST' : 'DELETE',
+        headers: authHeaders,
       })
 
       if (!response.ok) {
