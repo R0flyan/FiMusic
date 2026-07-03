@@ -4,8 +4,8 @@
   justify-content: right;
   padding: 0.75rem 1.5rem;
   gap: 1rem;
-  border-bottom: 1px solid var(--color-border, #eee);
-  background: var(--color-bg, #fff);
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-surface));
 }
 
 .header__search {
@@ -15,9 +15,10 @@
   flex: 1;
   max-width: 500px;
   padding: 0.5rem 0.75rem;
-  background: var(--color-background, #f5f5f5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  color: var(--color-text-secondary, #888);
+  color: var(--color-ink-muted);
 }
 
 .header__search input {
@@ -26,7 +27,7 @@
   background: transparent;
   outline: none;
   font-size: 0.9rem;
-  color: var(--color-text, #000);
+  color: var(--color-ink);
 }
 
 .header__actions {
@@ -45,15 +46,15 @@
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: var(--color-background, #f5f5f5);
-  color: var(--color-text, #000);
+  background: var(--color-surface);
+  color: var(--color-ink);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .header__theme-btn:hover,
 .header__avatar:hover {
-  background: var(--color-hover, #e5e5e5);
+  background: var(--color-hover);
 }
 
 .header__avatar span {
@@ -95,12 +96,12 @@
 .header__menu-username {
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--color-text);
+  color: var(--color-ink);
 }
 
 .header__menu-email {
   font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  color: var(--color-ink-muted);
   margin-top: 0.2rem;
   opacity: 0.7;
 }
@@ -118,7 +119,7 @@
   padding: 0.75rem 1rem;
   background: none;
   border: none;
-  color: var(--color-text);
+  color: var(--color-ink);
   font-size: 0.9rem;
   text-align: left;
   cursor: pointer;
@@ -144,12 +145,12 @@
 
 /* Аватар — виден в обеих темах */
 .header__avatar {
-  background: var(--color-primary, #646cff);
+  background: var(--color-accent);
   color: #fff;
   border: 2px solid var(--color-border);
 }
 
 .header__avatar:hover {
   opacity: 0.85;
-  background: var(--color-primary, #646cff);
+  background: var(--color-accent);
 }

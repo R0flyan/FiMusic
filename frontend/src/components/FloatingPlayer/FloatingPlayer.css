@@ -202,7 +202,20 @@
 .floating-player {
   min-height: 124px;
   border-radius: 18px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  border-color: var(--color-border);
+  box-shadow: 0 18px 42px rgba(45, 38, 31, 0.12);
+}
+
+[data-theme='dark'] .floating-player {
   background: #17181e;
+  color: #f7f2f6;
+  --color-ink: #f7f2f6;
+  --color-ink-muted: #a7a1a8;
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-hover: rgba(255, 255, 255, 0.08);
+  --color-bg: #17181e;
   border-color: rgba(255, 255, 255, 0.05);
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
 }

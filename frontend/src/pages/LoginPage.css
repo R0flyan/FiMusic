@@ -2,24 +2,27 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 200px);
+  min-height: calc(100vh - var(--header-height));
   padding: 2rem;
 }
 
 .auth-card {
   background: var(--color-surface);
-  border-radius: 12px;
-  padding: 2rem;
+  border-radius: 18px;
+  padding: 2.25rem;
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 440px;
+  box-shadow: 0 18px 45px rgba(24, 20, 16, 0.10);
   border: 1px solid var(--color-border);
 }
 
 .auth-card h1 {
   margin-bottom: 1.5rem;
   text-align: center;
-  color: var(--color-text);
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1.1;
 }
 
 .form-group {
@@ -29,47 +32,50 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--color-text);
+  font-weight: 700;
+  color: var(--color-ink);
 }
 
 .form-group input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 1rem;
-  background: var(--color-background);
-  color: var(--color-text);
-  transition: border-color 0.15s;
+  background: color-mix(in srgb, var(--color-surface) 88%, var(--color-bg));
+  color: var(--color-ink);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
 }
 
 .form-group input::placeholder {
-  color: var(--color-text-secondary);
+  color: var(--color-ink-muted);
   opacity: 0.6;
 }
 
 .auth-button {
   width: 100%;
   padding: 0.75rem;
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   margin-top: 1rem;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, background 0.15s;
 }
 
 .auth-button:hover:not(:disabled) {
   opacity: 0.9;
+  background: var(--color-accent-hover);
 }
 
 .auth-button:disabled {
@@ -95,13 +101,13 @@
   text-align: center;
   margin-top: 1.5rem;
   font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  color: var(--color-ink-muted);
 }
 
 .link-button {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-accent);
   cursor: pointer;
   text-decoration: underline;
   font-size: inherit;

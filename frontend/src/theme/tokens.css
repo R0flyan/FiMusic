@@ -6,8 +6,13 @@
   --color-accent: #4900be;
   --color-accent-hover: #5602d5;
   --color-border: #e8e4de;
+  --color-border-hover: #d8d1c8;
   --color-hover: rgba(10, 10, 10, 0.04);
   --color-accent-soft: rgba(92, 0, 146, 0.12);
+  --color-background: var(--color-bg);
+  --color-text: var(--color-ink);
+  --color-text-secondary: var(--color-ink-muted);
+  --color-primary: var(--color-accent);
 
   --font-display: 'Syne', system-ui, sans-serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
@@ -29,6 +34,7 @@
   --color-accent: #7c3aed;
   --color-accent-hover: #a855f7;
   --color-border: #2a2a2e;
+  --color-border-hover: #3a3a40;
   --color-hover: rgba(245, 240, 232, 0.06);
   --color-accent-soft: rgba(68, 63, 77, 0.16);
 }
