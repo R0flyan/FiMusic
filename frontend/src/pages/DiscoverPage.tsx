@@ -1,4 +1,5 @@
 import type { Track } from '../data/mock'
+import type { Playlist } from '../App'
 import {
   featuredPlaylist,
   scrollPlaylists,
@@ -18,6 +19,7 @@ interface DiscoverPageProps {
   isPlaying: boolean
   onPlayTrack: (track: Track) => void
   onToggleFavorite: (track: Track) => void
+  onOpenPlaylist?: (playlist: Playlist) => void
 }
 
 export function DiscoverPage({
@@ -28,7 +30,28 @@ export function DiscoverPage({
   isPlaying,
   onPlayTrack,
   onToggleFavorite,
+  onOpenPlaylist,
 }: DiscoverPageProps) {
+  const handleMockPlaylistClick = (mockPlaylist: any) => {
+    console.log('Clicked playlist:', mockPlaylist)
+    if (!onOpenPlaylist) {
+      console.log('No onOpenPlaylist callback')
+      return
+    }
+    
+    // Convert mock playlist to Playlist format
+    const playlist: Playlist = {
+      id: mockPlaylist.id,
+      title: mockPlaylist.title,
+      description: mockPlaylist.subtitle,
+      coverPath: null,
+      coverUrl: null,
+      trackCount: mockPlaylist.trackCount,
+    }
+    console.log('Calling onOpenPlaylist with:', playlist)
+    onOpenPlaylist(playlist)
+  }
+
   return (
     <div className="discover">
       <div className="discover__hero-text">
@@ -36,7 +59,11 @@ export function DiscoverPage({
         <p className="discover__tagline">Поток музыки, подобранный для вас</p>
       </div>
 
-      <BentoGrid hero={featuredPlaylist} side={sidePlaylists} />
+      <BentoGrid 
+        hero={featuredPlaylist} 
+        side={sidePlaylists}
+        onPlaylistClick={handleMockPlaylistClick}
+      />
 
       <WaveDivider />
 
@@ -61,7 +88,11 @@ export function DiscoverPage({
         </div>
       </section>
 
-      <HorizontalScroll title="Подборки" playlists={scrollPlaylists} />
+      <HorizontalScroll 
+        title="Подборки" 
+        playlists={scrollPlaylists}
+        onPlaylistClick={handleMockPlaylistClick}
+      />
     </div>
   )
 }
