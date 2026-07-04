@@ -38,7 +38,26 @@ class MediaStaticFiles(StaticFiles):
         return response
 
 
-app = FastAPI(title="FiMusic API")
+app = FastAPI(
+    title="FiMusic API",
+    version="1.0",
+    description="HTTP API for FiMusic music streaming service.",
+    root_path=settings.api_root_path,
+    openapi_tags=[
+        {
+            "name": "auth",
+            "description": "Регистрация, вход и работа с пользователем",
+        },
+        {
+            "name": "tracks",
+            "description": "Получение треков, поиск и медиатека",
+        },
+        {
+            "name": "playlists",
+            "description": "Создание плейлистов и управление треками в них",
+        },
+    ],
+)
 
 app.add_middleware(
     CORSMiddleware,

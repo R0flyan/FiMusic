@@ -14,6 +14,7 @@ interface PlaylistsPageProps {
   onCreatePlaylist: (title: string) => void | Promise<void>
   onOpenPlaylist: (playlist: Playlist) => void | Promise<void>
   onClosePlaylist: () => void
+  onDeletePlaylist: (playlist: Playlist) => void | Promise<void>
   onAddTrackToPlaylist: (playlist: Playlist, track: Track) => void | Promise<void>
   onRemoveTrackFromPlaylist: (playlist: Playlist, track: Track) => void | Promise<void>
   onPlayTrack: (track: Track) => void
@@ -30,6 +31,7 @@ export function PlaylistsPage({
   onCreatePlaylist,
   onOpenPlaylist,
   onClosePlaylist,
+  onDeletePlaylist,
   onAddTrackToPlaylist,
   onRemoveTrackFromPlaylist,
   onPlayTrack,
@@ -67,12 +69,19 @@ export function PlaylistsPage({
 
         <div className="playlists-page__detail-header">
           <PlaylistCover playlist={selectedPlaylist} />
-          <div>
+          <div className="playlists-page__detail-info">
             <h1 className="playlists-page__heading">{selectedPlaylist.title}</h1>
             <p className="playlists-page__tagline">
               {selectedPlaylist.description ?? `${selectedPlaylist.trackCount} треков`}
             </p>
           </div>
+          <button
+            type="button"
+            className="playlists-page__delete"
+            onClick={() => onDeletePlaylist(selectedPlaylist)}
+          >
+            Удалить плейлист
+          </button>
         </div>
 
         <section className="playlists-page__section">

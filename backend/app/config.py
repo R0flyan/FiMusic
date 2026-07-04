@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "your-super-secret-key-change-in-production-12345"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    api_root_path: str = ""
 
     class Config:
         env_file = "../.env"

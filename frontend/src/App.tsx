@@ -199,6 +199,24 @@ function App() {
     setPlaylists((currentPlaylists) => [mapApiPlaylist(playlist), ...currentPlaylists])
   }
 
+  const handleDeletePlaylist = async (playlist: Playlist) => {
+    const shouldDelete = window.confirm(`Вы уверены, что хотите удалить плейлист "${playlist.title}"?`)
+    if (!shouldDelete) return
+
+    const response = await fetch(`${API_URL}/playlists/${playlist.id}`, {
+      method: 'DELETE',
+      headers: authHeaders,
+    })
+
+    if (!response.ok) return
+
+    setPlaylists((currentPlaylists) =>
+      currentPlaylists.filter((item) => item.id !== playlist.id),
+    )
+    setSelectedPlaylist(null)
+    setPlaylistTracks([])
+  }
+
   const handleAddTrackToPlaylist = async (playlist: Playlist, track: Track) => {
     const response = await fetch(`${API_URL}/playlists/${playlist.id}/tracks/${track.id}`, {
       method: 'POST',
@@ -420,6 +438,7 @@ function App() {
               onCreatePlaylist={handleCreatePlaylist}
               onOpenPlaylist={handleOpenPlaylist}
               onClosePlaylist={handleClosePlaylist}
+              onDeletePlaylist={handleDeletePlaylist}
               onAddTrackToPlaylist={handleAddTrackToPlaylist}
               onRemoveTrackFromPlaylist={handleRemoveTrackFromPlaylist}
               onPlayTrack={handlePlayTrack}

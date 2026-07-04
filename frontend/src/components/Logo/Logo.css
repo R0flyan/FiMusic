@@ -18,5 +18,6 @@
 
 .logo__mark {
   flex-shrink: 0;
-  object-fit: contain;
+  object-fit: cover;
+  border-radius: 8px;
 }

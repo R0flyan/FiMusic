@@ -16,6 +16,11 @@
   justify-content: flex-start;
 }
 
+.playlists-page__detail-info {
+  min-width: 0;
+  flex: 1;
+}
+
 .playlists-page__heading {
   font-family: var(--font-display);
   font-size: 48px;
@@ -162,6 +167,29 @@
   border: 1px solid var(--color-border);
 }
 
+.playlists-page__delete {
+  height: 42px;
+  flex: 0 0 auto;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: rgba(235, 87, 87, 0.1);
+  color: #d83a3a;
+  border: 1px solid rgba(235, 87, 87, 0.28);
+  font-weight: 800;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.playlists-page__delete:hover {
+  background: rgba(235, 87, 87, 0.18);
+  border-color: rgba(235, 87, 87, 0.42);
+}
+
+[data-theme='dark'] .playlists-page__delete {
+  color: #ff8787;
+  background: rgba(255, 107, 107, 0.12);
+  border-color: rgba(255, 107, 107, 0.28);
+}
+
 .playlists-page__add-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -214,6 +242,10 @@
   .playlists-page__detail-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .playlists-page__delete {
+    width: 100%;
   }
 
   .playlists-page__track-item {

@@ -20,7 +20,7 @@ export function IconRail({ activePage, onNavigate }: IconRailProps) {
     <>
     <nav className="icon-rail" aria-label="Основная навигация">
       <div className="icon-rail__logo">
-        <Logo size={32} showText />
+        <Logo size={36} showText />
       </div>
       <ul className="icon-rail__list">
         {navItems.map(({ id, label, icon: Icon }) => (
