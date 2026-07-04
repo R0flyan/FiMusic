@@ -88,6 +88,7 @@ function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([])
+  const [recommendationTracks, setRecommendationTracks] = useState<Track[]>([])
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
   const [activePage, setActivePage] = useState<AppPage>('home')
   const currentTrack = playbackQueue[currentTrackIndex] ?? null
@@ -130,6 +131,7 @@ function App() {
       setPlaylists([])
       setSelectedPlaylist(null)
       setPlaylistTracks([])
+      setRecommendationTracks([])
       setIsPlaying(false)
       return
     }
@@ -168,7 +170,60 @@ function App() {
     loadPlaylists()
   }, [loadPlaylists])
 
+  const loadRecommendations = useCallback(() => {
+    if (!user || !token) {
+      console.log('Skipping recommendations - no user or token')
+      return
+    }
+
+    console.log('Loading recommendations...')
+    fetch(`${API_URL}/recommendations/playlist`, {
+      headers: authHeaders,
+    })
+      .then((res) => {
+        console.log('Recommendations API response:', res.status)
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`)
+        }
+        return res.json()
+      })
+      .then((data) => {
+        console.log('Recommendations data received:', data)
+        const mapped = data.tracks.map(mapApiTrack)
+        console.log('Mapped tracks:', mapped.length)
+        setRecommendationTracks(mapped)
+      })
+      .catch((err) => {
+        console.error('Failed to load recommendations:', err)
+      })
+  }, [token, user, authHeaders])
+
+  useEffect(() => {
+    loadRecommendations()
+  }, [loadRecommendations])
+
+  const getMockPlaylistTracks = (playlistId: number): Track[] => {
+    if (tracks.length === 0) return []
+    
+    // Create a deterministic mapping of playlist ID to track indices
+    const startIndex = ((playlistId - 100) * 5) % tracks.length
+    const endIndex = Math.min(startIndex + 15, tracks.length)
+    
+    return tracks.slice(startIndex, endIndex)
+  }
+
   const handleOpenPlaylist = async (playlist: Playlist) => {
+    // Check if it's a mock playlist (IDs 100-112)
+    const isMockPlaylist = typeof playlist.id === 'number' && playlist.id >= 100 && playlist.id <= 112
+    
+    if (isMockPlaylist) {
+      // Set the mock playlist with tracks from the main library
+      setSelectedPlaylist(playlist)
+      setPlaylistTracks(getMockPlaylistTracks(playlist.id as number))
+      setActivePage('playlists')
+      return
+    }
+
     const response = await fetch(`${API_URL}/playlists/${playlist.id}`, {
       headers: authHeaders,
     })
@@ -177,6 +232,7 @@ function App() {
     const data: ApiPlaylistDetail = await response.json()
     setSelectedPlaylist(mapApiPlaylist(data))
     setPlaylistTracks(data.tracks.map(mapApiTrack))
+    setActivePage('playlists')
   }
 
   const handleClosePlaylist = () => {
@@ -257,6 +313,10 @@ function App() {
   }
 
   const getQueueForTrack = (track: Track) => {
+    if (recommendationTracks.some((item) => item.id === track.id)) {
+      return recommendationTracks
+    }
+
     if (visiblePage === 'playlists' && selectedPlaylist && playlistTracks.length > 0) {
       return playlistTracks
     }
@@ -360,6 +420,11 @@ function App() {
         item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
       ),
     )
+    setRecommendationTracks((currentTracks) =>
+      currentTracks.map((item) =>
+        item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
+      ),
+    )
     setPlaybackQueue((currentTracks) =>
       currentTracks.map((item) =>
         item.id === track.id ? { ...item, isFavorite: nextIsFavorite } : item,
@@ -382,6 +447,11 @@ function App() {
         ),
       )
       setPlaylistTracks((currentTracks) =>
+        currentTracks.map((item) =>
+          item.id === track.id ? { ...item, isFavorite: track.isFavorite } : item,
+        ),
+      )
+      setRecommendationTracks((currentTracks) =>
         currentTracks.map((item) =>
           item.id === track.id ? { ...item, isFavorite: track.isFavorite } : item,
         ),
@@ -459,6 +529,7 @@ function App() {
               isPlaying={isPlaying}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
+              onOpenPlaylist={handleOpenPlaylist}
             />
           )}
           <FloatingPlayer

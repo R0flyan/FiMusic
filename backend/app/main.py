@@ -6,6 +6,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.api.auth import router as auth_router
 from app.api.playlists import router as playlists_router
 from app.api.tracks import router as tracks_router
+from app.api.recommendations import router as recommendations_router
 from app.config import settings
 
 MEDIA_CORS_HEADERS = {
@@ -88,6 +89,7 @@ app.mount("/media", MediaStaticFiles(directory="media"), name="media")
 app.include_router(tracks_router)
 app.include_router(playlists_router)
 app.include_router(auth_router)
+app.include_router(recommendations_router)
 
 
 @app.get("/health")

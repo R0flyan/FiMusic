@@ -11,7 +11,7 @@ export interface Track {
 }
 
 export interface Playlist {
-  id: string
+  id: string | number
   title: string
   subtitle: string
   trackCount: number
@@ -20,7 +20,7 @@ export interface Playlist {
 }
 
 export const featuredPlaylist: Playlist = {
-  id: '1',
+  id: 100,
   title: 'Midnight Currents',
   subtitle: 'Плавный поток для поздней ночи',
   trackCount: 42,
@@ -30,7 +30,7 @@ export const featuredPlaylist: Playlist = {
 
 export const sidePlaylists: Playlist[] = [
   {
-    id: '2',
+    id: 101,
     title: 'Fresh Drops',
     subtitle: 'Новинки недели',
     trackCount: 18,
@@ -38,7 +38,7 @@ export const sidePlaylists: Playlist[] = [
     size: 'small',
   },
   {
-    id: '3',
+    id: 102,
     title: 'For You',
     subtitle: 'Подобрано алгоритмом',
     trackCount: 30,
@@ -92,39 +92,74 @@ export const sidePlaylists: Playlist[] = [
 
 export const scrollPlaylists: Playlist[] = [
   {
-    id: 'p1',
+    id: 103,
     title: 'Indie Flow',
     subtitle: '42 трека',
     trackCount: 42,
     coverHue: 150,
   },
   {
-    id: 'p2',
+    id: 104,
     title: 'Electronic Ripples',
     subtitle: '28 треков',
     trackCount: 28,
     coverHue: 260,
   },
   {
-    id: 'p3',
+    id: 105,
     title: 'Jazz Current',
     subtitle: '35 треков',
     trackCount: 35,
     coverHue: 40,
   },
   {
-    id: 'p4',
+    id: 106,
     title: 'Ambient Stream',
     subtitle: '50 треков',
     trackCount: 50,
     coverHue: 190,
   },
   {
-    id: 'p5',
+    id: 107,
     title: 'Post-Rock Tide',
     subtitle: '22 трека',
     trackCount: 22,
     coverHue: 340,
+  },
+  {
+    id: 108,
+    title: 'Lo-Fi Beats',
+    subtitle: '38 треков',
+    trackCount: 38,
+    coverHue: 210,
+  },
+  {
+    id: 109,
+    title: 'Synthwave Dreams',
+    subtitle: '31 трек',
+    trackCount: 31,
+    coverHue: 280,
+  },
+  {
+    id: 110,
+    title: 'Soul Classics',
+    subtitle: '45 треков',
+    trackCount: 45,
+    coverHue: 30,
+  },
+  {
+    id: 111,
+    title: 'Deep House',
+    subtitle: '52 трека',
+    trackCount: 52,
+    coverHue: 220,
+  },
+  {
+    id: 112,
+    title: 'Bedroom Pop',
+    subtitle: '26 треков',
+    trackCount: 26,
+    coverHue: 310,
   },
 ]
 
