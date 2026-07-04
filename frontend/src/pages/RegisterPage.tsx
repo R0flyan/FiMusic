@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Footer } from '../components/Footer/Footer'
 import { useAuth } from '../context/AuthContext'
 import './RegisterPage.css'
 
@@ -44,6 +45,7 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
   }
 
   return (
+    <>
     <div className="auth-page">
       <div className="auth-card">
         <h1>Регистрация</h1>
@@ -145,6 +147,8 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
         </p>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }
 

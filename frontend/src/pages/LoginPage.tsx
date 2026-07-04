@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Footer } from '../components/Footer/Footer'
 import { useAuth } from '../context/AuthContext'
 import './LoginPage.css'
 
@@ -21,14 +22,15 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
 
     try {
       await login(username, password)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+    } catch {
+      setError('Неверное имя пользователя или пароль')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
+    <>
     <div className="auth-page">
       <div className="auth-card">
         <h1>Вход</h1>
@@ -90,6 +92,8 @@ export function LoginPage({ onSwitchToRegister }: LoginPageProps) {
         </p>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }
 
