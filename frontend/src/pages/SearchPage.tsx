@@ -9,6 +9,7 @@ interface SearchPageProps {
   currentTrack: Track
   isPlaying: boolean
   playlists: Playlist[]
+  playlistTrackIdsByPlaylist: Record<number, number[]>
   onPlayTrack: (track: Track) => void
   onToggleFavorite: (track: Track) => void
   onAddTrackToPlaylist: (playlist: Playlist, track: Track) => void | Promise<void>
@@ -19,6 +20,7 @@ export function SearchPage({
   currentTrack,
   isPlaying,
   playlists,
+  playlistTrackIdsByPlaylist,
   onPlayTrack,
   onToggleFavorite,
   onAddTrackToPlaylist,
@@ -63,6 +65,7 @@ export function SearchPage({
                 index={index + 1}
                 isPlaying={isPlaying && currentTrack.id === track.id}
                 playlists={playlists}
+                playlistTrackIdsByPlaylist={playlistTrackIdsByPlaylist}
                 onPlay={onPlayTrack}
                 onToggleFavorite={onToggleFavorite}
                 onAddToPlaylist={onAddTrackToPlaylist}

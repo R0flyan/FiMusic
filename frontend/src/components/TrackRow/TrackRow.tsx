@@ -8,6 +8,7 @@ interface TrackRowProps {
   index: number
   isPlaying?: boolean
   playlists?: Playlist[]
+  playlistTrackIdsByPlaylist?: Record<number, number[]>
   onPlay?: (track: Track) => void
   onToggleFavorite?: (track: Track) => void
   onAddToPlaylist?: (playlist: Playlist, track: Track) => void | Promise<void>
@@ -18,6 +19,7 @@ export function TrackRow({
   index,
   isPlaying = false,
   playlists = [],
+  playlistTrackIdsByPlaylist = {},
   onPlay,
   onToggleFavorite,
   onAddToPlaylist,
@@ -30,6 +32,10 @@ export function TrackRow({
     : {
         background: `linear-gradient(135deg, hsl(${track.coverHue}, 50%, 50%), hsl(${track.coverHue + 40}, 55%, 30%))`,
       }
+  const availablePlaylists = playlists.filter((playlist) => {
+    const playlistTrackIds = playlistTrackIdsByPlaylist[playlist.id]
+    return !playlistTrackIds?.includes(track.id)
+  })
 
   useEffect(() => {
     if (!isMenuOpen) return
@@ -127,8 +133,8 @@ export function TrackRow({
               </button>
 
               <div className="track-row__menu-label">Добавить в плейлист</div>
-              {playlists.length > 0 ? (
-                playlists.map((playlist) => (
+              {availablePlaylists.length > 0 ? (
+                availablePlaylists.map((playlist) => (
                   <button
                     key={playlist.id}
                     type="button"

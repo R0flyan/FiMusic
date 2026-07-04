@@ -21,9 +21,9 @@ export interface Playlist {
 
 export const featuredPlaylist: Playlist = {
   id: 100,
-  title: 'Midnight Currents',
+  title: 'Ночной вайб',
   subtitle: 'Плавный поток для поздней ночи',
-  trackCount: 42,
+  trackCount: 35,
   coverHue: 24,
   size: 'hero',
 }
@@ -31,7 +31,7 @@ export const featuredPlaylist: Playlist = {
 export const sidePlaylists: Playlist[] = [
   {
     id: 101,
-    title: 'Fresh Drops',
+    title: 'Свежие релизы',
     subtitle: 'Новинки недели',
     trackCount: 18,
     coverHue: 200,
@@ -39,9 +39,9 @@ export const sidePlaylists: Playlist[] = [
   },
   {
     id: 102,
-    title: 'For You',
+    title: 'Твой микс',
     subtitle: 'Подобрано алгоритмом',
-    trackCount: 30,
+    trackCount: 10,
     coverHue: 320,
     size: 'small',
   },

@@ -27,6 +27,7 @@
 
 .form-group {
   margin-bottom: 1rem;
+  position: relative;
 }
 
 .form-group label {
@@ -45,6 +46,38 @@
   background: color-mix(in srgb, var(--color-surface) 88%, var(--color-bg));
   color: var(--color-ink);
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.form-group input[type='password'],
+.form-group input[type='text']:where(#password, #confirmPassword) {
+  padding-right: 3rem;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--color-ink-muted);
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.password-toggle:hover:not(:disabled) {
+  color: var(--color-ink);
+  background: var(--color-hover);
+}
+
+.password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.form-group:has(#username) .password-toggle {
+  display: none;
 }
 
 .form-group input:focus {
@@ -95,6 +128,32 @@
 
 [data-theme="dark"] .error-message {
   color: #ff8787;
+}
+
+.auth-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0.25rem 0 1rem;
+  color: var(--color-ink-muted);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.auth-consent input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin-top: 2px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.auth-consent a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .auth-switch {

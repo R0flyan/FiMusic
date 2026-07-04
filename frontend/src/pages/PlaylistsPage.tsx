@@ -11,6 +11,7 @@ interface PlaylistsPageProps {
   playlistTracks: Track[]
   currentTrack: Track
   isPlaying: boolean
+  playlistTrackIdsByPlaylist: Record<number, number[]>
   onCreatePlaylist: (title: string) => void | Promise<void>
   onOpenPlaylist: (playlist: Playlist) => void | Promise<void>
   onClosePlaylist: () => void
@@ -28,6 +29,7 @@ export function PlaylistsPage({
   playlistTracks,
   currentTrack,
   isPlaying,
+  playlistTrackIdsByPlaylist,
   onCreatePlaylist,
   onOpenPlaylist,
   onClosePlaylist,
@@ -95,6 +97,7 @@ export function PlaylistsPage({
                     index={index + 1}
                     isPlaying={isPlaying && currentTrack.id === track.id}
                     playlists={playlists}
+                    playlistTrackIdsByPlaylist={playlistTrackIdsByPlaylist}
                     onPlay={onPlayTrack}
                     onToggleFavorite={onToggleFavorite}
                     onAddToPlaylist={onAddTrackToPlaylist}

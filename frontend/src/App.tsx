@@ -91,6 +91,9 @@ function App() {
   const [tracks, setTracks] = useState<Track[]>([])
   const [playbackQueue, setPlaybackQueue] = useState<Track[]>([])
   const [playlists, setPlaylists] = useState<Playlist[]>([])
+  const [playlistTrackIdsByPlaylist, setPlaylistTrackIdsByPlaylist] = useState<
+    Record<number, number[]>
+  >({})
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([])
   const [recommendationTracks, setRecommendationTracks] = useState<Track[]>([])
@@ -134,6 +137,7 @@ function App() {
       setTracks([])
       setPlaybackQueue([])
       setPlaylists([])
+      setPlaylistTrackIdsByPlaylist({})
       setSelectedPlaylist(null)
       setPlaylistTracks([])
       setRecommendationTracks([])
@@ -179,7 +183,26 @@ function App() {
     })
       .then((res) => res.json())
       .then((data: ApiPlaylist[]) => {
-        setPlaylists(data.map(mapApiPlaylist))
+        const mappedPlaylists = data.map(mapApiPlaylist)
+        setPlaylists(mappedPlaylists)
+
+        return Promise.all(
+          mappedPlaylists.map((playlist) =>
+            fetch(`${API_URL}/playlists/${playlist.id}`, {
+              headers: authHeaders,
+            })
+              .then((res) => (res.ok ? res.json() : null))
+              .then((detail: ApiPlaylistDetail | null) => [
+                playlist.id,
+                detail?.tracks.map((track) => track.id) ?? [],
+              ] as const),
+          ),
+        )
+      })
+      .then((entries) => {
+        if (!entries) return
+
+        setPlaylistTrackIdsByPlaylist(Object.fromEntries(entries))
       })
   }, [authHeaders, token, user])
 
@@ -248,7 +271,12 @@ function App() {
 
     const data: ApiPlaylistDetail = await response.json()
     setSelectedPlaylist(mapApiPlaylist(data))
-    setPlaylistTracks(data.tracks.map(mapApiTrack))
+    const mappedTracks = data.tracks.map(mapApiTrack)
+    setPlaylistTracks(mappedTracks)
+    setPlaylistTrackIdsByPlaylist((current) => ({
+      ...current,
+      [data.id]: mappedTracks.map((track) => track.id),
+    }))
     setActivePage('playlists')
   }
 
@@ -269,7 +297,12 @@ function App() {
     if (!response.ok) return
 
     const playlist: ApiPlaylist = await response.json()
-    setPlaylists((currentPlaylists) => [mapApiPlaylist(playlist), ...currentPlaylists])
+    const mappedPlaylist = mapApiPlaylist(playlist)
+    setPlaylists((currentPlaylists) => [mappedPlaylist, ...currentPlaylists])
+    setPlaylistTrackIdsByPlaylist((current) => ({
+      ...current,
+      [mappedPlaylist.id]: [],
+    }))
   }
 
   const handleDeletePlaylist = async (playlist: Playlist) => {
@@ -286,6 +319,11 @@ function App() {
     setPlaylists((currentPlaylists) =>
       currentPlaylists.filter((item) => item.id !== playlist.id),
     )
+    setPlaylistTrackIdsByPlaylist((current) => {
+      const next = { ...current }
+      delete next[playlist.id]
+      return next
+    })
     setSelectedPlaylist(null)
     setPlaylistTracks([])
   }
@@ -300,9 +338,14 @@ function App() {
 
     const data: ApiPlaylistDetail = await response.json()
     const updatedPlaylist = mapApiPlaylist(data)
+    const updatedTracks = data.tracks.map(mapApiTrack)
 
     setSelectedPlaylist(updatedPlaylist)
-    setPlaylistTracks(data.tracks.map(mapApiTrack))
+    setPlaylistTracks(updatedTracks)
+    setPlaylistTrackIdsByPlaylist((current) => ({
+      ...current,
+      [updatedPlaylist.id]: updatedTracks.map((item) => item.id),
+    }))
     setPlaylists((currentPlaylists) =>
       currentPlaylists.map((item) => (item.id === updatedPlaylist.id ? updatedPlaylist : item)),
     )
@@ -324,6 +367,10 @@ function App() {
 
     setSelectedPlaylist(updatedPlaylist)
     setPlaylistTracks(nextTracks)
+    setPlaylistTrackIdsByPlaylist((current) => ({
+      ...current,
+      [playlist.id]: nextTracks.map((item) => item.id),
+    }))
     setPlaylists((currentPlaylists) =>
       currentPlaylists.map((item) => (item.id === updatedPlaylist.id ? updatedPlaylist : item)),
     )
@@ -512,6 +559,7 @@ function App() {
               currentTrack={currentTrack}
               isPlaying={isPlaying}
               playlists={playlists}
+              playlistTrackIdsByPlaylist={playlistTrackIdsByPlaylist}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
               onAddTrackToPlaylist={handleAddTrackToPlaylist}
@@ -524,6 +572,7 @@ function App() {
               playlistTracks={playlistTracks}
               currentTrack={currentTrack}
               isPlaying={isPlaying}
+              playlistTrackIdsByPlaylist={playlistTrackIdsByPlaylist}
               onCreatePlaylist={handleCreatePlaylist}
               onOpenPlaylist={handleOpenPlaylist}
               onClosePlaylist={handleClosePlaylist}
@@ -539,6 +588,7 @@ function App() {
               currentTrack={currentTrack}
               isPlaying={isPlaying}
               playlists={playlists}
+              playlistTrackIdsByPlaylist={playlistTrackIdsByPlaylist}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
               onAddTrackToPlaylist={handleAddTrackToPlaylist}
@@ -549,6 +599,7 @@ function App() {
               currentTrack={currentTrack}
               isPlaying={isPlaying}
               playlists={playlists}
+              playlistTrackIdsByPlaylist={playlistTrackIdsByPlaylist}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
               onAddTrackToPlaylist={handleAddTrackToPlaylist}

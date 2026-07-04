@@ -12,6 +12,9 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -21,6 +24,11 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
 
     if (password !== confirmPassword) {
       setError('Пароли не совпадают')
+      return
+    }
+
+    if (!acceptedPrivacy) {
+      setError('Необходимо принять политику конфиденциальности')
       return
     }
 
@@ -68,29 +76,63 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
             <label htmlFor="password">Пароль</label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={isLoading}
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((value) => !value)}
+              aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+              disabled={isLoading}
+            >
+              <EyeIcon isOpen={showPassword} />
+            </button>
           </div>
 
           <div className="form-group">
             <label htmlFor="confirmPassword">Подтвердите пароль</label>
             <input
               id="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? 'text' : 'password'}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               disabled={isLoading}
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowConfirmPassword((value) => !value)}
+              aria-label={showConfirmPassword ? 'Скрыть пароль' : 'Показать пароль'}
+              disabled={isLoading}
+            >
+              <EyeIcon isOpen={showConfirmPassword} />
+            </button>
           </div>
+
+          <label className="auth-consent">
+            <input
+              type="checkbox"
+              checked={acceptedPrivacy}
+              onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+              disabled={isLoading}
+              required
+            />
+            <span>
+              Я согласен с{' '}
+              <a href="https://ifbest.org/politika-konfidentsialnosti" target="_blank" rel="noreferrer">
+                политикой конфиденциальности
+              </a>
+            </span>
+          </label>
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" disabled={isLoading} className="auth-button">
+          <button type="submit" disabled={isLoading || !acceptedPrivacy} className="auth-button">
             {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
           </button>
         </form>
@@ -103,5 +145,28 @@ export function RegisterPage({ onSwitchToLogin }: RegisterPageProps) {
         </p>
       </div>
     </div>
+  )
+}
+
+function EyeIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
+      {!isOpen && (
+        <path
+          d="M4 4l16 16"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+      )}
+    </svg>
   )
 }
