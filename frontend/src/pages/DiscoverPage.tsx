@@ -17,8 +17,10 @@ interface DiscoverPageProps {
   emptyText?: string
   currentTrack: Track
   isPlaying: boolean
+  playlists: Playlist[]
   onPlayTrack: (track: Track) => void
   onToggleFavorite: (track: Track) => void
+  onAddTrackToPlaylist: (playlist: Playlist, track: Track) => void | Promise<void>
   onOpenPlaylist?: (playlist: Playlist) => void
 }
 
@@ -28,8 +30,10 @@ export function DiscoverPage({
   emptyText = 'Треки не найдены',
   currentTrack,
   isPlaying,
+  playlists,
   onPlayTrack,
   onToggleFavorite,
+  onAddTrackToPlaylist,
   onOpenPlaylist,
 }: DiscoverPageProps) {
   const handleMockPlaylistClick = (mockPlaylist: any) => {
@@ -78,8 +82,10 @@ export function DiscoverPage({
                 track={track}
                 index={i + 1}
                 isPlaying={isPlaying && currentTrack.id === track.id}
+                playlists={playlists}
                 onPlay={onPlayTrack}
                 onToggleFavorite={onToggleFavorite}
+                onAddToPlaylist={onAddTrackToPlaylist}
               />
             ))
           ) : (

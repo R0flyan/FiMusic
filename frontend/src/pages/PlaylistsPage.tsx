@@ -94,8 +94,10 @@ export function PlaylistsPage({
                     track={track}
                     index={index + 1}
                     isPlaying={isPlaying && currentTrack.id === track.id}
+                    playlists={playlists}
                     onPlay={onPlayTrack}
                     onToggleFavorite={onToggleFavorite}
+                    onAddToPlaylist={onAddTrackToPlaylist}
                   />
                   <button
                     type="button"

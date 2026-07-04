@@ -1,4 +1,5 @@
 import { TrackRow } from '../components/TrackRow/TrackRow'
+import type { Playlist } from '../App'
 import type { Track } from '../data/mock'
 import './FavoriteTracksPage.css'
 
@@ -6,16 +7,20 @@ interface FavoriteTracksPageProps {
   tracks: Track[]
   currentTrack: Track
   isPlaying: boolean
+  playlists: Playlist[]
   onPlayTrack: (track: Track) => void
   onToggleFavorite: (track: Track) => void
+  onAddTrackToPlaylist: (playlist: Playlist, track: Track) => void | Promise<void>
 }
 
 export function FavoriteTracksPage({
   tracks,
   currentTrack,
   isPlaying,
+  playlists,
   onPlayTrack,
   onToggleFavorite,
+  onAddTrackToPlaylist,
 }: FavoriteTracksPageProps) {
   return (
     <div className="favorite-page">
@@ -33,8 +38,10 @@ export function FavoriteTracksPage({
                 track={track}
                 index={index + 1}
                 isPlaying={isPlaying && currentTrack.id === track.id}
+                playlists={playlists}
                 onPlay={onPlayTrack}
                 onToggleFavorite={onToggleFavorite}
+                onAddToPlaylist={onAddTrackToPlaylist}
               />
             ))
           ) : (

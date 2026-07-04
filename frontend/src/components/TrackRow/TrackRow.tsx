@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+import type { Playlist } from '../../App'
 import type { Track } from '../../data/mock'
 import './TrackRow.css'
 
@@ -5,22 +7,72 @@ interface TrackRowProps {
   track: Track
   index: number
   isPlaying?: boolean
+  playlists?: Playlist[]
   onPlay?: (track: Track) => void
   onToggleFavorite?: (track: Track) => void
+  onAddToPlaylist?: (playlist: Playlist, track: Track) => void | Promise<void>
 }
 
 export function TrackRow({
   track,
   index,
   isPlaying = false,
+  playlists = [],
   onPlay,
   onToggleFavorite,
+  onAddToPlaylist,
 }: TrackRowProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [didCopy, setDidCopy] = useState(false)
+  const menuRef = useRef<HTMLDivElement | null>(null)
   const coverStyle = track.coverUrl
     ? { backgroundImage: `url("${track.coverUrl}")` }
     : {
         background: `linear-gradient(135deg, hsl(${track.coverHue}, 50%, 50%), hsl(${track.coverHue + 40}, 55%, 30%))`,
       }
+
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+    }
+  }, [isMenuOpen])
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/track/${track.id}`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: track.title,
+          text: `${track.artist} - ${track.title}`,
+          url: shareUrl,
+        })
+        setIsMenuOpen(false)
+        return
+      } catch {
+        return
+      }
+    }
+
+    await navigator.clipboard.writeText(shareUrl)
+    setDidCopy(true)
+    window.setTimeout(() => setDidCopy(false), 1600)
+  }
+
+  const handleAddToPlaylist = (playlist: Playlist) => {
+    void onAddToPlaylist?.(playlist, track)
+    setIsMenuOpen(false)
+  }
 
   return (
     <div
@@ -54,6 +106,44 @@ export function TrackRow({
         >
           <HeartIcon />
         </button>
+        <div className="track-row__menu-wrap" ref={menuRef}>
+          <button
+            type="button"
+            className={`track-row__btn${isMenuOpen ? ' track-row__btn--active' : ''}`}
+            aria-label="Еще"
+            aria-expanded={isMenuOpen}
+            onClick={(event) => {
+              event.stopPropagation()
+              setIsMenuOpen((value) => !value)
+            }}
+          >
+            <MoreIcon />
+          </button>
+
+          {isMenuOpen && (
+            <div className="track-row__menu" role="menu">
+              <button type="button" className="track-row__menu-item" onClick={handleShare}>
+                {didCopy ? 'Ссылка скопирована' : 'Поделиться треком'}
+              </button>
+
+              <div className="track-row__menu-label">Добавить в плейлист</div>
+              {playlists.length > 0 ? (
+                playlists.map((playlist) => (
+                  <button
+                    key={playlist.id}
+                    type="button"
+                    className="track-row__menu-item"
+                    onClick={() => handleAddToPlaylist(playlist)}
+                  >
+                    {playlist.title}
+                  </button>
+                ))
+              ) : (
+                <span className="track-row__menu-empty">Плейлистов пока нет</span>
+              )}
+            </div>
+          )}
+        </div>
         <button type="button" className="track-row__btn" aria-label="Ещё">
           <MoreIcon />
         </button>

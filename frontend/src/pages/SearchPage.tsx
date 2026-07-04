@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { TrackRow } from '../components/TrackRow/TrackRow'
+import type { Playlist } from '../App'
 import type { Track } from '../data/mock'
 import './SearchPage.css'
 
@@ -7,16 +8,20 @@ interface SearchPageProps {
   tracks: Track[]
   currentTrack: Track
   isPlaying: boolean
+  playlists: Playlist[]
   onPlayTrack: (track: Track) => void
   onToggleFavorite: (track: Track) => void
+  onAddTrackToPlaylist: (playlist: Playlist, track: Track) => void | Promise<void>
 }
 
 export function SearchPage({
   tracks,
   currentTrack,
   isPlaying,
+  playlists,
   onPlayTrack,
   onToggleFavorite,
+  onAddTrackToPlaylist,
 }: SearchPageProps) {
   const [query, setQuery] = useState('')
   const normalizedQuery = query.trim().toLowerCase()
@@ -57,8 +62,10 @@ export function SearchPage({
                 track={track}
                 index={index + 1}
                 isPlaying={isPlaying && currentTrack.id === track.id}
+                playlists={playlists}
                 onPlay={onPlayTrack}
                 onToggleFavorite={onToggleFavorite}
+                onAddToPlaylist={onAddTrackToPlaylist}
               />
             ))
           ) : (

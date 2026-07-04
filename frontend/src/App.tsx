@@ -76,6 +76,11 @@ const mapApiPlaylist = (playlist: ApiPlaylist): Playlist => ({
   trackCount: playlist.track_count,
 })
 
+const getSharedTrackId = () => {
+  const match = window.location.pathname.match(/^\/track\/(\d+)$/)
+  return match ? Number(match[1]) : null
+}
+
 function App() {
   const { user, token, isLoading } = useAuth()
   const [isDark, setIsDark] = useState(() => {
@@ -142,6 +147,11 @@ function App() {
       .then((res) => res.json())
       .then((data: ApiTrack[]) => {
         const mappedTracks = data.map(mapApiTrack)
+        const sharedTrackId = getSharedTrackId()
+
+        const sharedIndex = sharedTrackId
+          ? mappedTracks.findIndex((track) => track.id === sharedTrackId)
+          : -1
 
         const savedTrackId = localStorage.getItem('currentTrackId')
         const savedIndex = savedTrackId
@@ -150,6 +160,13 @@ function App() {
 
         setTracks(mappedTracks)
         setPlaybackQueue(mappedTracks)
+
+        if (sharedIndex >= 0) {
+          setCurrentTrackIndex(sharedIndex)
+          setActivePage('home')
+          return
+        }
+
         setCurrentTrackIndex(savedIndex >= 0 ? savedIndex : 0)
       })
   }, [authHeaders, token, user])
@@ -494,8 +511,10 @@ function App() {
               tracks={tracks}
               currentTrack={currentTrack}
               isPlaying={isPlaying}
+              playlists={playlists}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
+              onAddTrackToPlaylist={handleAddTrackToPlaylist}
             />
           ) : visiblePage === 'playlists' ? (
             <PlaylistsPage
@@ -519,16 +538,20 @@ function App() {
               tracks={favoriteTracks}
               currentTrack={currentTrack}
               isPlaying={isPlaying}
+              playlists={playlists}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
+              onAddTrackToPlaylist={handleAddTrackToPlaylist}
             />
           ) : (
             <DiscoverPage
               tracks={tracks}
               currentTrack={currentTrack}
               isPlaying={isPlaying}
+              playlists={playlists}
               onPlayTrack={handlePlayTrack}
               onToggleFavorite={handleToggleFavorite}
+              onAddTrackToPlaylist={handleAddTrackToPlaylist}
               onOpenPlaylist={handleOpenPlaylist}
             />
           )}
