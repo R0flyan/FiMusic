@@ -1,6 +1,6 @@
+import { useState } from 'react'
 import type { Playlist as ShowcasePlaylist, Track } from '../data/mock'
 import type { Playlist } from '../App'
-import { scrollPlaylists } from '../data/mock'
 import { BentoGrid } from '../components/BentoGrid/BentoGrid'
 import { WaveDivider } from '../components/WaveDivider/WaveDivider'
 import { TrackRow } from '../components/TrackRow/TrackRow'
@@ -143,6 +143,7 @@ const buildShowcasePlaylists = (tracks: Track[]) => {
 
 interface DiscoverPageProps {
   tracks: Track[]
+  recentTracks: Track[]
   title?: string
   emptyText?: string
   currentTrack: Track
@@ -157,6 +158,7 @@ interface DiscoverPageProps {
 
 export function DiscoverPage({
   tracks,
+  recentTracks,
   title,
   emptyText = 'Треки не найдены',
   currentTrack,
@@ -169,6 +171,8 @@ export function DiscoverPage({
   onOpenPlaylist,
 }: DiscoverPageProps) {
   const showcasePlaylists = buildShowcasePlaylists(tracks)
+  const [showAllRecentTracks, setShowAllRecentTracks] = useState(false)
+  const visibleRecentTracks = showAllRecentTracks ? recentTracks : recentTracks.slice(0, 8)
 
   const handleMockPlaylistClick = (mockPlaylist: ShowcasePlaylist) => {
     if (!onOpenPlaylist) return
@@ -203,10 +207,19 @@ export function DiscoverPage({
 
       <section className="discover__tracks">
         <h2 className="discover__section-title">Недавно слушали</h2>
+        {recentTracks.length > 8 && (
+          <button
+            type="button"
+            className="discover__more"
+            onClick={() => setShowAllRecentTracks((value) => !value)}
+          >
+            {showAllRecentTracks ? 'Скрыть' : 'Все'}
+          </button>
+        )}
         {title && <p className="discover__page-label">{title}</p>}
         <div className="discover__track-list" role="table">
-          {tracks.length > 0 ? (
-            tracks.map((track, i) => (
+          {visibleRecentTracks.length > 0 ? (
+            visibleRecentTracks.map((track, i) => (
               <TrackRow
                 key={track.id}
                 track={track}
@@ -227,7 +240,7 @@ export function DiscoverPage({
 
       <HorizontalScroll 
         title="Подборки" 
-        playlists={[...showcasePlaylists.scroll, ...scrollPlaylists]}
+        playlists={showcasePlaylists.scroll}
         onPlaylistClick={handleMockPlaylistClick}
       />
     </div>

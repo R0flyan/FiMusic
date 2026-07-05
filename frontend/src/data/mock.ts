@@ -24,7 +24,7 @@ export const featuredPlaylist: Playlist = {
   id: 100,
   title: 'Ночной вайб',
   subtitle: 'Плавный поток для поздней ночи',
-  trackCount: 35,
+  trackCount: 15,
   coverHue: 24,
   size: 'hero',
 }

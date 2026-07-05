@@ -25,6 +25,21 @@
   margin-bottom: 12px;
 }
 
+.discover__more {
+  width: fit-content;
+  margin: -4px 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.discover__more:hover {
+  color: var(--color-accent-strong);
+}
+
 .discover__tracks {
   margin-bottom: 40px;
 }

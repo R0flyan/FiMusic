@@ -59,6 +59,21 @@
   margin-bottom: 12px;
 }
 
+.search-page__more {
+  width: fit-content;
+  margin: -4px 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.search-page__more:hover {
+  color: var(--color-accent-strong);
+}
+
 .search-page__track-list {
   display: flex;
   flex-direction: column;

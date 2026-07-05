@@ -90,6 +90,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [isShuffle, setIsShuffle] = useState(false)
   const [tracks, setTracks] = useState<Track[]>([])
+  const [recentTrackIds, setRecentTrackIds] = useState<number[]>([])
   const [playbackQueue, setPlaybackQueue] = useState<Track[]>([])
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [playlistTrackIdsByPlaylist, setPlaylistTrackIdsByPlaylist] = useState<
@@ -102,6 +103,14 @@ function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
   const currentTrack = playbackQueue[currentTrackIndex] ?? null
   const favoriteTracks = tracks.filter((track) => track.isFavorite)
+  const recentTracksStorageKey = user ? `recentTrackIds:${user.id}` : 'recentTrackIds'
+  const recentTracks = useMemo(
+    () =>
+      recentTrackIds
+        .map((trackId) => tracks.find((track) => track.id === trackId))
+        .filter((track): track is Track => Boolean(track)),
+    [recentTrackIds, tracks],
+  )
   const visiblePage: AppPage =
     !user && activePage !== 'login' && activePage !== 'register'
       ? 'login'
@@ -134,6 +143,27 @@ function App() {
   }, [isDark])
 
   useEffect(() => {
+    if (!user) {
+      setRecentTrackIds([])
+      return
+    }
+
+    const savedRecentTrackIds = localStorage.getItem(`recentTrackIds:${user.id}`)
+
+    if (!savedRecentTrackIds) {
+      setRecentTrackIds([])
+      return
+    }
+
+    try {
+      const parsedTrackIds = JSON.parse(savedRecentTrackIds)
+      setRecentTrackIds(Array.isArray(parsedTrackIds) ? parsedTrackIds : [])
+    } catch {
+      setRecentTrackIds([])
+    }
+  }, [user])
+
+  useEffect(() => {
     if (!user || !token) {
       setTracks([])
       setPlaybackQueue([])
@@ -142,6 +172,7 @@ function App() {
       setSelectedPlaylist(null)
       setPlaylistTracks([])
       setRecommendationTracks([])
+      setRecentTrackIds([])
       setIsPlaying(false)
       return
     }
@@ -401,6 +432,18 @@ function App() {
     return tracks
   }
 
+  const rememberRecentTrack = useCallback((track: Track) => {
+    setRecentTrackIds((currentTrackIds) => {
+      const nextTrackIds = [
+        track.id,
+        ...currentTrackIds.filter((trackId) => trackId !== track.id),
+      ].slice(0, 30)
+
+      localStorage.setItem(recentTracksStorageKey, JSON.stringify(nextTrackIds))
+      return nextTrackIds
+    })
+  }, [recentTracksStorageKey])
+
   const handlePlayTrack = (track: Track) => {
     const nextQueue = getQueueForTrack(track)
     const index = nextQueue.findIndex((item) => item.id === track.id)
@@ -408,6 +451,7 @@ function App() {
 
     setPlaybackQueue(nextQueue)
     setCurrentTrackIndex(index)
+    rememberRecentTrack(track)
     localStorage.setItem('currentTrackId', track.id.toString())
     localStorage.removeItem('currentTrackTime')
     setIsPlaying(true)
@@ -422,6 +466,7 @@ function App() {
     if (!nextTrack) return
 
     setCurrentTrackIndex(nextIndex)
+    rememberRecentTrack(nextTrack)
     localStorage.setItem('currentTrackId', nextTrack.id.toString())
     localStorage.removeItem('currentTrackTime')
     setIsPlaying(true)
@@ -605,6 +650,8 @@ function App() {
           ) : (
             <DiscoverPage
               tracks={tracks}
+              recentTracks={recentTracks}
+              emptyText="Пока нет недавно прослушанных треков"
               currentTrack={currentTrack}
               isPlaying={isPlaying}
               playlists={playlists}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TrackRow } from '../components/TrackRow/TrackRow'
 import type { Playlist } from '../App'
 import type { Track } from '../data/mock'
@@ -26,6 +26,7 @@ export function SearchPage({
   onAddTrackToPlaylist,
 }: SearchPageProps) {
   const [query, setQuery] = useState('')
+  const [showAllTracks, setShowAllTracks] = useState(false)
   const normalizedQuery = query.trim().toLowerCase()
   const filteredTracks = useMemo(() => {
     if (!normalizedQuery) return tracks
@@ -35,6 +36,11 @@ export function SearchPage({
       return values.some((value) => value.toLowerCase().includes(normalizedQuery))
     })
   }, [normalizedQuery, tracks])
+  const visibleTracks = showAllTracks ? filteredTracks : filteredTracks.slice(0, 12)
+
+  useEffect(() => {
+    setShowAllTracks(false)
+  }, [normalizedQuery])
 
   return (
     <div className="search-page">
@@ -56,9 +62,18 @@ export function SearchPage({
         <h2 className="search-page__section-title">
           {normalizedQuery ? 'Результаты' : 'Все треки'}
         </h2>
+        {filteredTracks.length > 12 && (
+          <button
+            type="button"
+            className="search-page__more"
+            onClick={() => setShowAllTracks((value) => !value)}
+          >
+            {showAllTracks ? 'Скрыть' : 'Все'}
+          </button>
+        )}
         <div className="search-page__track-list" role="table">
-          {filteredTracks.length > 0 ? (
-            filteredTracks.map((track, index) => (
+          {visibleTracks.length > 0 ? (
+            visibleTracks.map((track, index) => (
               <TrackRow
                 key={track.id}
                 track={track}
