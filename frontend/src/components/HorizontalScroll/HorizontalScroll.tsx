@@ -23,14 +23,12 @@ export function HorizontalScroll({ title, playlists, onPlaylistClick }: Horizont
             className="h-scroll__card"
             style={{ cursor: onPlaylistClick ? 'pointer' : 'default' }}
             onClick={() => {
-              console.log('HorizontalScroll: Clicked playlist:', playlist)
               onPlaylistClick?.(playlist)
             }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                console.log('HorizontalScroll: Keyboard click playlist:', playlist)
                 onPlaylistClick?.(playlist)
               }
             }}

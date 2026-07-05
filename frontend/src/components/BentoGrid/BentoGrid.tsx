@@ -27,14 +27,12 @@ export function BentoGrid({ hero, side, onPlaylistClick }: BentoGridProps) {
         className="bento__hero"
         style={{ cursor: onPlaylistClick ? 'pointer' : 'default' }}
         onClick={() => {
-          console.log('BentoGrid: Clicked hero playlist:', hero)
           onPlaylistClick?.(hero)
         }}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
-            console.log('BentoGrid: Keyboard click hero playlist:', hero)
             onPlaylistClick?.(hero)
           }
         }}
@@ -48,7 +46,6 @@ export function BentoGrid({ hero, side, onPlaylistClick }: BentoGridProps) {
             <span className="bento__count">{hero.trackCount} треков</span>
             <button type="button" className="bento__play" onClick={(e) => {
               e.stopPropagation()
-              console.log('BentoGrid: Clicked play button:', hero)
               onPlaylistClick?.(hero)
             }}>
               <PlayIcon />
@@ -65,14 +62,12 @@ export function BentoGrid({ hero, side, onPlaylistClick }: BentoGridProps) {
             className="bento__card"
             style={{ cursor: onPlaylistClick ? 'pointer' : 'default' }}
             onClick={() => {
-              console.log('BentoGrid: Clicked side playlist:', playlist)
               onPlaylistClick?.(playlist)
             }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
-                console.log('BentoGrid: Keyboard click side playlist:', playlist)
                 onPlaylistClick?.(playlist)
               }
             }}

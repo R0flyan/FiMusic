@@ -32,6 +32,7 @@ export interface Playlist {
   coverPath: string | null
   coverUrl: string | null
   trackCount: number
+  trackIds?: number[]
 }
 
 interface ApiPlaylist {
@@ -257,9 +258,17 @@ function App() {
     const isMockPlaylist = typeof playlist.id === 'number' && playlist.id >= 100 && playlist.id <= 112
     
     if (isMockPlaylist) {
-      // Set the mock playlist with tracks from the main library
-      setSelectedPlaylist(playlist)
-      setPlaylistTracks(getMockPlaylistTracks(playlist.id as number))
+      const mockTracks = playlist.trackIds?.length
+        ? playlist.trackIds
+            .map((trackId) => tracks.find((track) => track.id === trackId))
+            .filter((track): track is Track => Boolean(track))
+        : getMockPlaylistTracks(playlist.id as number)
+
+      setSelectedPlaylist({
+        ...playlist,
+        trackCount: mockTracks.length,
+      })
+      setPlaylistTracks(mockTracks)
       setActivePage('playlists')
       return
     }

@@ -17,6 +17,7 @@ export interface Playlist {
   trackCount: number
   coverHue: number
   size?: 'hero' | 'small'
+  trackIds?: number[]
 }
 
 export const featuredPlaylist: Playlist = {
