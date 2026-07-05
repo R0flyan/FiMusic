@@ -1,0 +1,156 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  padding: 0.75rem 1.5rem;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-surface));
+}
+
+.header__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 500px;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-ink-muted);
+}
+
+.header__search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.9rem;
+  color: var(--color-ink);
+}
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.header__theme-btn,
+.header__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header__theme-btn:hover,
+.header__avatar:hover {
+  background: var(--color-hover);
+}
+
+.header__avatar span {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Выпадающее меню */
+.header__menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 220px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header__menu-user {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header__menu-username {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+}
+
+.header__menu-email {
+  font-size: 0.8rem;
+  color: var(--color-ink-muted);
+  margin-top: 0.2rem;
+  opacity: 0.7;
+}
+
+.header__menu-divider {
+  height: 1px;
+  background: var(--color-border);
+}
+
+.header__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: var(--color-ink);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.header__menu-item:hover {
+  background: var(--color-hover);
+}
+
+/* Кнопка "Выйти" — видна в обеих темах */
+.header__menu-item--logout {
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .header__menu-item--logout {
+  color: #ff8787;
+}
+
+.header__menu-item--logout:hover {
+  background: rgba(255, 107, 107, 0.15);
+}
+
+/* Аватар — виден в обеих темах */
+.header__avatar {
+  background: var(--color-accent);
+  color: #fff;
+  border: 2px solid var(--color-border);
+}
+
+.header__avatar:hover {
+  opacity: 0.85;
+  background: var(--color-accent);
+}

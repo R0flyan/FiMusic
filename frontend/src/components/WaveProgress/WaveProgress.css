@@ -1,0 +1,48 @@
+.wave-progress {
+  width: 100%;
+  height: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.wave-progress--interactive {
+  cursor: pointer;
+  touch-action: none;
+}
+
+.wave-progress:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.wave-progress__track {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+  transition: height 0.18s var(--ease), background-color 0.18s var(--ease);
+}
+
+.wave-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover));
+  transition: width 0.18s var(--ease);
+}
+
+.wave-progress--interactive:hover .wave-progress__track {
+  height: 7px;
+  background: var(--color-border-hover);
+}
+
+@media (max-width: 760px) {
+  .wave-progress {
+    height: 22px;
+  }
+
+  .wave-progress__track {
+    height: 6px;
+  }
+}

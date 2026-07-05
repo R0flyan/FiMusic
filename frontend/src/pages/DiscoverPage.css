@@ -1,0 +1,78 @@
+.discover__hero-text {
+  margin-bottom: 28px;
+  padding-top: 50px;
+}
+
+.discover__heading {
+  font-family: var(--font-display);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.discover__tagline {
+  color: var(--color-ink-muted);
+  font-size: 15px;
+}
+
+.discover__section-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.discover__more {
+  width: fit-content;
+  margin: -4px 0 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.discover__more:hover {
+  color: var(--color-accent-strong);
+}
+
+.discover__tracks {
+  margin-bottom: 40px;
+}
+
+.discover__page-label {
+  margin: -4px 0 14px;
+  color: var(--color-ink-muted);
+  font-size: 14px;
+}
+
+.discover__empty {
+  margin: 0;
+  padding: 22px 12px;
+  color: var(--color-ink-muted);
+}
+
+.discover__track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (max-width: 700px) {
+  .discover__hero-text {
+    padding-top: 24px;
+    margin-bottom: 20px;
+  }
+
+  .discover__heading {
+    font-size: 36px;
+  }
+
+  .discover__tagline {
+    font-size: 14px;
+  }
+}

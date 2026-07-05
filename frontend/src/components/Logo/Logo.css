@@ -1,0 +1,23 @@
+.logo {
+  display: flex;
+  align-items: center;
+  color: var(--color-ink);
+  border-radius: 34px;
+}
+
+.logo__text-accent {
+  color: var(--color-accent);
+}
+
+.logo__text {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.logo__mark {
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 8px;
+}
