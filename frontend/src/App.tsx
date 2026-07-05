@@ -7,6 +7,7 @@ import { SearchPage } from './pages/SearchPage'
 import { FloatingPlayer } from './components/FloatingPlayer/FloatingPlayer'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { WelcomePage } from './pages/WelcomePage'
 import { useAuth } from './context/AuthContext'
 import { API_URL } from './config'
 import type { Track } from './data/mock'
@@ -23,7 +24,7 @@ interface ApiTrack {
 }
 
 type MainPage = 'home' | 'search' | 'playlists' | 'liked'
-type AppPage = MainPage | 'login' | 'register'
+type AppPage = MainPage | 'welcome' | 'login' | 'register'
 
 export interface Playlist {
   id: number
@@ -100,7 +101,7 @@ function App() {
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([])
   const [recommendationTracks, setRecommendationTracks] = useState<Track[]>([])
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
-  const [activePage, setActivePage] = useState<AppPage>('home')
+  const [activePage, setActivePage] = useState<AppPage>('welcome')
   const currentTrack = playbackQueue[currentTrackIndex] ?? null
   const favoriteTracks = tracks.filter((track) => track.isFavorite)
   const recentTracksStorageKey = user ? `recentTrackIds:${user.id}` : 'recentTrackIds'
@@ -112,9 +113,9 @@ function App() {
     [recentTrackIds, tracks],
   )
   const visiblePage: AppPage =
-    !user && activePage !== 'login' && activePage !== 'register'
-      ? 'login'
-      : user && (activePage === 'login' || activePage === 'register')
+    !user && activePage !== 'welcome' && activePage !== 'login' && activePage !== 'register'
+      ? 'welcome'
+      : user && (activePage === 'welcome' || activePage === 'login' || activePage === 'register')
         ? 'home'
         : activePage
   const authHeaders = useMemo<HeadersInit | undefined>(
@@ -587,6 +588,15 @@ function App() {
       <div style={{ display: 'grid', placeItems: 'center', height: '100vh' }}>
         Загрузка...
       </div>
+    )
+  }
+
+  if (visiblePage === 'welcome') {
+    return (
+      <WelcomePage
+        onLogin={() => setActivePage('login')}
+        onRegister={() => setActivePage('register')}
+      />
     )
   }
 
